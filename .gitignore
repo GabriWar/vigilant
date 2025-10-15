@@ -1,0 +1,42 @@
+# Data directories
+logs/
+snapshots/
+html_archive/
+requests_archive/
+downloaded_images/
+cookies/
+
+# Config files (contain sensitive data)
+config/urls.json
+config/requests.json
+config/cookies/
+
+# State files
+watch_state.json
+watch_config.json
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+dist/
+build/
+
+# Virtual environments
+venv/
+env/
+ENV/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db

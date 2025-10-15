@@ -1,0 +1,8 @@
+[
+  {
+    "url": "https://example.com/api/endpoint",
+    "request_name": "Login Request Name",
+    "watch_interval": 60,
+    "watch_interval_display": "1 minutes"
+  }
+]
