@@ -4,6 +4,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 from app.config import settings
 from app.api import api_router
+from app.api.test_endpoints import router as test_router
+from app.api.setup import router as setup_router
 from app.core.scheduler import scheduler_service
 
 
@@ -39,6 +41,8 @@ app.add_middleware(
 
 # Include API router
 app.include_router(api_router, prefix=settings.API_V1_PREFIX)
+app.include_router(test_router, prefix=settings.API_V1_PREFIX)
+app.include_router(setup_router, prefix=settings.API_V1_PREFIX)
 
 
 @app.get("/")

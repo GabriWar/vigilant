@@ -1,13 +1,16 @@
 import React from 'react';
 import { useMonitors } from '@hooks/useMonitors';
+import { useNotifications } from '@hooks/useNotifications';
 import { StatsCard } from '@components/organisms/StatsCard/StatsCard';
 import { MonitorCard } from '@components/organisms/MonitorCard/MonitorCard';
 import { Spinner } from '@components/atoms/Spinner/Spinner';
 import { Card } from '@components/atoms/Card/Card';
+import { Button } from '@components/atoms/Button/Button';
 import './Dashboard.css';
 
 export const Dashboard: React.FC = () => {
   const { data: monitors, isLoading, error } = useMonitors({ limit: 10 });
+  const { testPing, testCookie } = useNotifications();
 
   if (isLoading) {
     return (
@@ -36,6 +39,26 @@ export const Dashboard: React.FC = () => {
       <div className="dashboard-header">
         <h1 className="dashboard-title">Dashboard</h1>
         <p className="dashboard-subtitle">Monitor your websites and APIs in real-time</p>
+        
+        {/* Test buttons */}
+        <div className="dashboard-test-buttons">
+          <Button 
+            variant="primary" 
+            size="sm" 
+            onClick={testPing}
+            className="test-button"
+          >
+            Test Ping 🚀
+          </Button>
+          <Button 
+            variant="secondary" 
+            size="sm" 
+            onClick={testCookie}
+            className="test-button"
+          >
+            Test Cookie 🍪
+          </Button>
+        </div>
       </div>
 
       <div className="dashboard-stats">

@@ -24,6 +24,8 @@ def upgrade() -> None:
         sa.Column('name', sa.String(255), nullable=False),
         sa.Column('request_data', sa.Text(), nullable=False),
         sa.Column('save_cookies', sa.Boolean(), nullable=False),
+        sa.Column('use_cookies', sa.Boolean(), nullable=False, default=False),
+        sa.Column('cookie_request_id', sa.Integer(), nullable=True),
         sa.Column('watch_interval', sa.Integer(), nullable=True),
         sa.Column('is_active', sa.Boolean(), nullable=False),
         sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('CURRENT_TIMESTAMP'), nullable=False),
@@ -31,7 +33,7 @@ def upgrade() -> None:
         sa.Column('last_executed_at', sa.DateTime(timezone=True), nullable=True),
         sa.PrimaryKeyConstraint('id'),
         sa.UniqueConstraint('name')
-        )
+    )
     op.create_index(op.f('ix_requests_name'), 'requests', ['name'], unique=True)
 
     # Create monitors table
@@ -44,6 +46,13 @@ def upgrade() -> None:
         sa.Column('watch_interval', sa.Integer(), nullable=False),
         sa.Column('is_active', sa.Boolean(), nullable=False),
         sa.Column('request_id', sa.Integer(), nullable=True),
+        # Additional fields for direct monitor configuration
+        sa.Column('method', sa.String(10), nullable=True, default='GET'),
+        sa.Column('headers', sa.JSON(), nullable=True),
+        sa.Column('body', sa.Text(), nullable=True),
+        sa.Column('save_cookies', sa.Boolean(), nullable=False, default=False),
+        sa.Column('use_cookies', sa.Boolean(), nullable=False, default=False),
+        sa.Column('cookie_request_id', sa.Integer(), nullable=True),
         sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('CURRENT_TIMESTAMP'), nullable=False),
         sa.Column('updated_at', sa.DateTime(timezone=True), server_default=sa.text('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'), nullable=False),
         sa.Column('last_checked_at', sa.DateTime(timezone=True), nullable=True),

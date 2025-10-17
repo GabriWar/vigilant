@@ -8,6 +8,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.database import AsyncSessionLocal
 from app.services.cookie_service import CookieService
 from app.services.notification_service import NotificationService
+from app.services.monitor_executor import MonitorExecutor
+from app.services.request_executor import RequestExecutor
 from app.config import settings
 
 
@@ -30,6 +32,8 @@ class SchedulerService:
         self._add_cookie_check_task()
         self._add_cookie_cleanup_task()
         self._add_cookie_notification_task()
+        self._add_monitor_execution_task()
+        self._add_request_execution_task()
 
         self.scheduler.start()
         self._started = True
@@ -77,6 +81,44 @@ class SchedulerService:
             replace_existing=True
         )
         logger.info("Added task: Notify expiring cookies (every 6 hours)")
+
+    def _add_monitor_execution_task(self):
+        """Add task to execute monitors (every minute)"""
+        self.scheduler.add_job(
+            self._execute_monitors,
+            trigger=IntervalTrigger(minutes=1),
+            id="execute_monitors",
+            name="Execute monitors",
+            replace_existing=True
+        )
+        logger.info("Added task: Execute monitors (every 1 minute)")
+
+    def _add_request_execution_task(self):
+        """Add task to execute requests (every minute)"""
+        self.scheduler.add_job(
+            self._execute_requests,
+            trigger=IntervalTrigger(minutes=1),
+            id="execute_requests",
+            name="Execute requests",
+            replace_existing=True
+        )
+        logger.info("Added task: Execute requests (every 1 minute)")
+
+    async def _execute_monitors(self):
+        """Execute all active monitors"""
+        try:
+            async with AsyncSessionLocal() as db:
+                await MonitorExecutor.execute_all_active_monitors(db)
+        except Exception as e:
+            logger.error(f"Error executing monitors: {e}")
+
+    async def _execute_requests(self):
+        """Execute all active requests"""
+        try:
+            async with AsyncSessionLocal() as db:
+                await RequestExecutor.execute_all_active_requests(db)
+        except Exception as e:
+            logger.error(f"Error executing requests: {e}")
 
     async def _check_cookies_expiring_soon(self):
         """Check for cookies expiring within 24 hours"""

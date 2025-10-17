@@ -12,6 +12,13 @@ class MonitorBase(BaseModel):
     watch_interval: int = Field(default=60, gt=0)
     is_active: bool = Field(default=True)
     request_id: Optional[int] = None
+    # Additional fields for direct monitor configuration
+    method: Optional[str] = Field(default="GET", pattern="^(GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)$")
+    headers: Optional[dict] = Field(default_factory=dict)
+    body: Optional[str] = None
+    save_cookies: Optional[bool] = Field(default=False)
+    use_cookies: Optional[bool] = Field(default=False)
+    cookie_request_id: Optional[int] = None
 
 
 class MonitorCreate(MonitorBase):
@@ -27,6 +34,13 @@ class MonitorUpdate(BaseModel):
     watch_interval: Optional[int] = Field(None, gt=0)
     is_active: Optional[bool] = None
     request_id: Optional[int] = None
+    # Additional fields for direct monitor configuration
+    method: Optional[str] = Field(None, pattern="^(GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)$")
+    headers: Optional[dict] = None
+    body: Optional[str] = None
+    save_cookies: Optional[bool] = None
+    use_cookies: Optional[bool] = None
+    cookie_request_id: Optional[int] = None
 
 
 class MonitorInDB(MonitorBase):
@@ -40,6 +54,13 @@ class MonitorInDB(MonitorBase):
     error_message: Optional[str] = None
     check_count: int = 0
     change_count: int = 0
+    # Additional fields from database
+    method: Optional[str] = "GET"
+    headers: Optional[dict] = None
+    body: Optional[str] = None
+    save_cookies: Optional[bool] = False
+    use_cookies: Optional[bool] = False
+    cookie_request_id: Optional[int] = None
 
     class Config:
         from_attributes = True

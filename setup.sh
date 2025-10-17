@@ -233,6 +233,21 @@ if [ $? -eq 0 ]; then
     echo -e "${GREEN}✓ Services should be ready!${NC}                    "
     echo ""
     
+    # Initialize default test requests
+    echo -e "${BLUE}Initializing default test requests...${NC}"
+    sleep 5  # Give backend a bit more time
+    
+    # Try to call the setup endpoint
+    curl -s -X POST http://localhost:8000/api/setup/initialize > /dev/null 2>&1
+    if [ $? -eq 0 ]; then
+        echo -e "${GREEN}✓ Default test requests created${NC}"
+        echo -e "   ${BLUE}• Cookie Test Request (every 1 hour)${NC}"
+        echo -e "   ${BLUE}• Ping Test Request (every 30 seconds)${NC}"
+    else
+        echo -e "${YELLOW}⚠ Could not create default requests (they can be created manually)${NC}"
+    fi
+    echo ""
+    
     # Display success message
     echo -e "${GREEN}╔════════════════════════════════════════════╗${NC}"
     echo -e "${GREEN}║          🎉 Setup Complete! 🎉             ║${NC}"

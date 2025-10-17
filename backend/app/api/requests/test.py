@@ -192,7 +192,7 @@ async def test_request(data: TestRequestData, db: Session = Depends(get_db)):
             if cookies_to_send:
                 request_kwargs['cookies'] = cookies_to_send
             
-            # Add body for POST/PUT/PATCH requests
+            # Add body for POST/PUT/PATCH requests only
             if data.body and data.method.upper() in ['POST', 'PUT', 'PATCH']:
                 content_type = data.headers.get('content-type', '').lower()
                 

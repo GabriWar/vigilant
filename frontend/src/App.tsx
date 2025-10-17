@@ -1,6 +1,10 @@
+import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { ROUTES } from '@constants/routes';
 import { PageLayout } from '@components/layout/PageLayout/PageLayout';
+import { ToastContainer } from '@components/atoms';
+import { useToast } from '@hooks/useToast';
+import { useNotifications } from '@hooks/useNotifications';
 import { Dashboard } from '@pages/Dashboard/Dashboard';
 import { MonitorsPage } from '@pages/Monitors/MonitorsPage';
 import { MonitorCreatePage } from '@pages/Monitors/MonitorCreatePage';
@@ -13,6 +17,14 @@ import { WorkflowsPage } from '@pages/Workflows/WorkflowsPage';
 import { WorkflowCreatePage } from '@pages/Workflows/WorkflowCreatePage';
 
 function App() {
+  const { toasts, removeToast } = useToast();
+  const { startListening } = useNotifications();
+
+  // Start listening for notifications when app loads
+  React.useEffect(() => {
+    startListening();
+  }, [startListening]);
+
   return (
     <BrowserRouter>
       <Routes>
@@ -30,6 +42,9 @@ function App() {
           <Route path={ROUTES.WORKFLOW_CREATE} element={<WorkflowCreatePage />} />
         </Route>
       </Routes>
+      
+      {/* Toast notifications */}
+      <ToastContainer toasts={toasts} onRemove={removeToast} />
     </BrowserRouter>
   );
 }

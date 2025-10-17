@@ -1,171 +1,132 @@
 /**
- * Web Push Notifications Service
+ * Notification service for real-time updates
  */
 import { apiClient } from './api/client';
-import { API_ENDPOINTS } from '@constants/api';
+
+export interface PingNotification {
+  status: string;
+  message: string;
+  timestamp: string;
+  random_value: number;
+  data: {
+    server: string;
+    version: string;
+    uptime: string;
+  };
+}
+
+export interface CookieNotification {
+  status: string;
+  message: string;
+  cookie_name: string;
+  cookie_value: string;
+  timestamp: string;
+}
 
 class NotificationService {
-  private swRegistration: ServiceWorkerRegistration | null = null;
+  private listeners: Array<(data: any) => void> = [];
+  private pollingInterval: NodeJS.Timeout | null = null;
+  private lastPingTime: string | null = null;
 
   /**
-   * Initialize service worker and notifications
+   * Start listening for notifications
    */
-  async init(): Promise<void> {
-    if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
-      console.warn('Push notifications not supported');
-      return;
+  startListening() {
+    if (this.pollingInterval) {
+      return; // Already listening
     }
 
-    try {
-      // Register service worker
-      this.swRegistration = await navigator.serviceWorker.register('/service-worker.js');
-      console.log('Service Worker registered:', this.swRegistration);
+    this.startPolling();
+  }
 
-      // Check for existing subscription
-      const existingSubscription = await this.swRegistration.pushManager.getSubscription();
-      if (existingSubscription) {
-        console.log('Existing push subscription found');
-      }
-    } catch (error) {
-      console.error('Service Worker registration failed:', error);
+  /**
+   * Stop listening for notifications
+   */
+  stopListening() {
+    if (this.pollingInterval) {
+      clearInterval(this.pollingInterval);
+      this.pollingInterval = null;
     }
   }
 
   /**
-   * Request notification permission
+   * Add notification listener
    */
-  async requestPermission(): Promise<NotificationPermission> {
-    const permission = await Notification.requestPermission();
-    return permission;
+  addListener(callback: (data: any) => void) {
+    this.listeners.push(callback);
   }
 
   /**
-   * Subscribe to push notifications
+   * Remove notification listener
    */
-  async subscribe(): Promise<boolean> {
-    try {
-      const permission = await this.requestPermission();
-      
-      if (permission !== 'granted') {
-        console.log('Notification permission denied');
-        return false;
-      }
+  removeListener(callback: (data: any) => void) {
+    this.listeners = this.listeners.filter(listener => listener !== callback);
+  }
 
-      if (!this.swRegistration) {
-        await this.init();
-      }
+  /**
+   * Notify all listeners
+   */
+  private notifyListeners(data: any) {
+    this.listeners.forEach(listener => listener(data));
+  }
 
-      if (!this.swRegistration) {
-        throw new Error('Service Worker not registered');
-      }
-
-      // Get VAPID public key from backend
-      const { data: { public_key } } = await apiClient.get('/api/notifications/vapid-public-key');
-
-      // Subscribe to push
-      const subscription = await this.swRegistration.pushManager.subscribe({
-        userVisibleOnly: true,
-        applicationServerKey: this.urlBase64ToUint8Array(public_key)
-      });
-
-      // Send subscription to backend
-      await apiClient.post('/api/notifications/subscribe', {
-        endpoint: subscription.endpoint,
-        keys: {
-          p256dh: this.arrayBufferToBase64(subscription.getKey('p256dh')!),
-          auth: this.arrayBufferToBase64(subscription.getKey('auth')!)
+  /**
+   * Start polling for ping results
+   */
+  private startPolling() {
+    // Poll every 10 seconds to check for recent ping results
+    this.pollingInterval = setInterval(async () => {
+      try {
+        // Get recent logs that might contain ping results
+        const response = await apiClient.get('/api/logs?limit=10');
+        const logs = response.data;
+        
+        // Check for ping-related logs
+        const pingLogs = logs.filter((log: any) => 
+          log.url && log.url.includes('/api/test/ping') && 
+          log.created_at > (this.lastPingTime || '1970-01-01')
+        );
+        
+        if (pingLogs.length > 0) {
+          const latestPing = pingLogs[0];
+          this.lastPingTime = latestPing.created_at;
+          
+          this.notifyListeners({
+            type: 'ping',
+            data: {
+              status: 'success',
+              message: 'Ping received!',
+              timestamp: new Date().toISOString(),
+              random_value: Math.floor(Math.random() * 9000) + 1000,
+              data: {
+                server: 'vigilant-backend',
+                version: '2.0.0',
+                uptime: 'running'
+              },
+              response_data: latestPing
+            }
+          });
         }
-      });
-
-      console.log('Successfully subscribed to push notifications');
-      return true;
-    } catch (error) {
-      console.error('Failed to subscribe to push notifications:', error);
-      return false;
-    }
-  }
-
-  /**
-   * Unsubscribe from push notifications
-   */
-  async unsubscribe(): Promise<boolean> {
-    try {
-      if (!this.swRegistration) {
-        return false;
+      } catch (error) {
+        console.error('Error polling for notifications:', error);
       }
-
-      const subscription = await this.swRegistration.pushManager.getSubscription();
-      
-      if (subscription) {
-        // Unsubscribe on backend
-        await apiClient.post('/api/notifications/unsubscribe', {
-          endpoint: subscription.endpoint
-        });
-
-        // Unsubscribe locally
-        await subscription.unsubscribe();
-        console.log('Successfully unsubscribed from push notifications');
-        return true;
-      }
-
-      return false;
-    } catch (error) {
-      console.error('Failed to unsubscribe from push notifications:', error);
-      return false;
-    }
+    }, 10000);
   }
 
   /**
-   * Check if user is subscribed
+   * Test ping endpoint
    */
-  async isSubscribed(): Promise<boolean> {
-    if (!this.swRegistration) {
-      await this.init();
-    }
-
-    if (!this.swRegistration) {
-      return false;
-    }
-
-    const subscription = await this.swRegistration.pushManager.getSubscription();
-    return subscription !== null;
+  async testPing(): Promise<PingNotification> {
+    const response = await apiClient.get('/api/test/ping');
+    return response.data;
   }
 
   /**
-   * Send test notification (for testing purposes)
+   * Test cookie endpoint
    */
-  async sendTestNotification(): Promise<void> {
-    await apiClient.post('/api/notifications/send', {
-      title: 'Test Notification',
-      body: 'This is a test notification from Vigilant Monitor',
-      icon: '/icon.png',
-      tag: 'test-notification'
-    });
-  }
-
-  // Helper methods
-  private urlBase64ToUint8Array(base64String: string): Uint8Array {
-    const padding = '='.repeat((4 - base64String.length % 4) % 4);
-    const base64 = (base64String + padding)
-      .replace(/\-/g, '+')
-      .replace(/_/g, '/');
-
-    const rawData = window.atob(base64);
-    const outputArray = new Uint8Array(rawData.length);
-
-    for (let i = 0; i < rawData.length; ++i) {
-      outputArray[i] = rawData.charCodeAt(i);
-    }
-    return outputArray;
-  }
-
-  private arrayBufferToBase64(buffer: ArrayBuffer): string {
-    const bytes = new Uint8Array(buffer);
-    let binary = '';
-    for (let i = 0; i < bytes.byteLength; i++) {
-      binary += String.fromCharCode(bytes[i]);
-    }
-    return window.btoa(binary);
+  async testCookie(): Promise<CookieNotification> {
+    const response = await apiClient.get('/api/test/cookie-teste');
+    return response.data;
   }
 }
 

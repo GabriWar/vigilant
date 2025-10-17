@@ -8,6 +8,9 @@
 
 .dashboard-header {
   margin-bottom: var(--spacing-2xl);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
 }
 
 .dashboard-title {
@@ -20,6 +23,24 @@
 .dashboard-subtitle {
   font-size: 1rem;
   color: var(--color-text-secondary);
+}
+
+.dashboard-test-buttons {
+  display: flex;
+  gap: var(--spacing-sm);
+  margin-top: var(--spacing-sm);
+}
+
+.test-button {
+  font-size: 0.875rem;
+  padding: var(--spacing-xs) var(--spacing-md);
+  border-radius: var(--radius-md);
+  transition: all var(--transition-fast);
+}
+
+.test-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .dashboard-stats {

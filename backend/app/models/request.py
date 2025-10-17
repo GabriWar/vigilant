@@ -16,6 +16,8 @@ class Request(Base):
     # Request details
     request_data = Column(Text, nullable=False)  # Stores the fetch() request
     save_cookies = Column(Boolean, default=False, nullable=False)
+    use_cookies = Column(Boolean, default=False, nullable=False)  # Use cookies in request
+    cookie_request_id = Column(Integer, nullable=True)  # Request ID to get cookies from
     
     # Watch settings (for standalone request monitoring)
     watch_interval = Column(Integer, nullable=True)  # seconds, NULL if not monitored standalone
@@ -27,7 +29,8 @@ class Request(Base):
     last_executed_at = Column(DateTime(timezone=True), nullable=True)
     
     # Relationships
-    monitors = relationship("Monitor", back_populates="request")
+    monitors = relationship("Monitor", foreign_keys="Monitor.request_id", back_populates="request")
+    monitors_using_cookies = relationship("Monitor", foreign_keys="Monitor.cookie_request_id", back_populates="cookie_request")
     cookies = relationship("Cookie", back_populates="request", cascade="all, delete-orphan")
     snapshots = relationship("Snapshot", back_populates="request", cascade="all, delete-orphan")
     change_logs = relationship("ChangeLog", back_populates="request", cascade="all, delete-orphan")

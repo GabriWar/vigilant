@@ -18,6 +18,13 @@ export interface Monitor {
   error_message: string | null;
   check_count: number;
   change_count: number;
+  // Additional fields for direct monitor configuration
+  method?: string;
+  headers?: Record<string, string>;
+  body?: string;
+  save_cookies?: boolean;
+  use_cookies?: boolean;
+  cookie_request_id?: number;
 }
 
 export interface MonitorCreate {
@@ -27,6 +34,13 @@ export interface MonitorCreate {
   watch_interval?: number;
   is_active?: boolean;
   request_id?: number | null;
+  // Additional fields for direct monitor configuration
+  method?: string;
+  headers?: Record<string, string>;
+  body?: string;
+  save_cookies?: boolean;
+  use_cookies?: boolean;
+  cookie_request_id?: number;
 }
 
 export interface MonitorUpdate {
@@ -36,6 +50,13 @@ export interface MonitorUpdate {
   watch_interval?: number;
   is_active?: boolean;
   request_id?: number | null;
+  // Additional fields for direct monitor configuration
+  method?: string;
+  headers?: Record<string, string>;
+  body?: string;
+  save_cookies?: boolean;
+  use_cookies?: boolean;
+  cookie_request_id?: number;
 }
 
 export interface MonitorWithStats extends Monitor {

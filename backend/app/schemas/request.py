@@ -9,6 +9,8 @@ class RequestBase(BaseModel):
     name: str = Field(..., min_length=1, max_length=255)
     request_data: str = Field(..., min_length=1)
     save_cookies: bool = Field(default=False)
+    use_cookies: bool = Field(default=False)
+    cookie_request_id: Optional[int] = None
     watch_interval: Optional[int] = Field(None, gt=0)
     is_active: bool = Field(default=True)
 
@@ -23,6 +25,8 @@ class RequestUpdate(BaseModel):
     name: Optional[str] = Field(None, min_length=1, max_length=255)
     request_data: Optional[str] = Field(None, min_length=1)
     save_cookies: Optional[bool] = None
+    use_cookies: Optional[bool] = None
+    cookie_request_id: Optional[int] = None
     watch_interval: Optional[int] = Field(None, gt=0)
     is_active: Optional[bool] = None
 

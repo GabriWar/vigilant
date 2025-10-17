@@ -6,6 +6,8 @@ export interface Request {
   name: string;
   request_data: string; // JSON string
   save_cookies: boolean;
+  use_cookies: boolean;
+  cookie_request_id: number | null;
   watch_interval: number | null;
   is_active: boolean;
   created_at: string;
@@ -17,6 +19,8 @@ export interface RequestCreate {
   name: string;
   request_data: string;
   save_cookies: boolean;
+  use_cookies: boolean;
+  cookie_request_id: number | null;
   watch_interval: number | null;
   is_active: boolean;
 }
@@ -25,6 +29,8 @@ export interface RequestUpdate {
   name?: string;
   request_data?: string;
   save_cookies?: boolean;
+  use_cookies?: boolean;
+  cookie_request_id?: number | null;
   watch_interval?: number | null;
   is_active?: boolean;
 }
@@ -36,6 +42,8 @@ export interface RequestFormData {
   headers: string;
   body: string;
   save_cookies: boolean;
+  use_cookies: boolean;
+  cookie_request_id?: number;
   watch_interval: number | null;
   is_active: boolean;
 }

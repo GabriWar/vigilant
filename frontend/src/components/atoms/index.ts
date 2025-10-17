@@ -9,3 +9,5 @@ export { Card } from './Card/Card';
 export { Icon } from './Icon/Icon';
 export { Spinner } from './Spinner/Spinner';
 export { Modal } from './Modal/Modal';
+export { Toast, ToastContainer } from './Toast';
+export type { ToastData } from './Toast';
