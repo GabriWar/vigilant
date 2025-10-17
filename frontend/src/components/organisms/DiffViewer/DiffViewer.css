@@ -1,0 +1,127 @@
+/* DiffViewer Component Styles */
+
+.diff-viewer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.diff-viewer-stats {
+  display: flex;
+  gap: var(--spacing-md);
+  padding: var(--spacing-md);
+  background-color: var(--color-bg);
+  border-radius: var(--radius-md);
+  flex-wrap: wrap;
+}
+
+.diff-viewer-stat-item {
+  display: flex;
+  align-items: center;
+}
+
+.diff-viewer-content {
+  background-color: #1e1e1e;
+  border-radius: var(--radius-md);
+  padding: var(--spacing-md);
+  overflow-x: auto;
+  max-height: 60vh;
+  overflow-y: auto;
+  font-family: 'Courier New', Consolas, monospace;
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.diff-viewer-line {
+  display: flex;
+  white-space: pre;
+  padding: 2px 0;
+}
+
+.diff-viewer-line-number {
+  display: inline-block;
+  width: 3rem;
+  text-align: right;
+  padding-right: var(--spacing-md);
+  color: #858585;
+  user-select: none;
+  flex-shrink: 0;
+}
+
+.diff-viewer-line-content {
+  flex: 1;
+  color: #d4d4d4;
+}
+
+.diff-viewer-indicator {
+  display: inline-block;
+  width: 1.5rem;
+  font-weight: bold;
+}
+
+/* Line types */
+.diff-viewer-line-add {
+  background-color: rgba(34, 197, 94, 0.15);
+}
+
+.diff-viewer-line-add .diff-viewer-line-content {
+  color: #4ade80;
+}
+
+.diff-viewer-line-add .diff-viewer-indicator {
+  color: #22c55e;
+}
+
+.diff-viewer-line-remove {
+  background-color: rgba(239, 68, 68, 0.15);
+}
+
+.diff-viewer-line-remove .diff-viewer-line-content {
+  color: #f87171;
+}
+
+.diff-viewer-line-remove .diff-viewer-indicator {
+  color: #ef4444;
+}
+
+.diff-viewer-line-header {
+  background-color: rgba(59, 130, 246, 0.15);
+}
+
+.diff-viewer-line-header .diff-viewer-line-content {
+  color: #60a5fa;
+  font-weight: bold;
+}
+
+.diff-viewer-line-context .diff-viewer-line-content {
+  color: #d4d4d4;
+}
+
+.diff-viewer-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-2xl);
+  color: var(--color-text-secondary);
+}
+
+/* Scrollbar for dark theme */
+.diff-viewer-content::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.diff-viewer-content::-webkit-scrollbar-track {
+  background: #2d2d2d;
+}
+
+.diff-viewer-content::-webkit-scrollbar-thumb {
+  background: #555;
+  border-radius: 4px;
+}
+
+.diff-viewer-content::-webkit-scrollbar-thumb:hover {
+  background: #666;
+}

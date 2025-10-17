@@ -1,0 +1,66 @@
+/* SearchBar Component Styles */
+
+.search-bar {
+  position: relative;
+}
+
+.search-bar-full-width {
+  width: 100%;
+}
+
+.search-bar-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 0.625rem 1rem;
+  transition: all var(--transition-fast);
+}
+
+.search-bar-wrapper:hover {
+  border-color: var(--color-primary-light);
+}
+
+.search-bar-focused {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1);
+}
+
+.search-bar-icon {
+  color: var(--color-text-secondary);
+  margin-right: var(--spacing-sm);
+}
+
+.search-bar-input {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 0.875rem;
+  color: var(--color-text);
+}
+
+.search-bar-input::placeholder {
+  color: var(--color-text-disabled);
+}
+
+.search-bar-clear {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-xs);
+  margin-left: var(--spacing-xs);
+  color: var(--color-text-secondary);
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.search-bar-clear:hover {
+  color: var(--color-text);
+  background-color: var(--color-bg);
+}

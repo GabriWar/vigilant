@@ -1,0 +1,87 @@
+/* StatsCard Component Styles */
+
+.stats-card {
+  transition: all var(--transition-base);
+}
+
+.stats-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-xl);
+}
+
+.stats-card-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.stats-card-info {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.stats-card-title {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.stats-card-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--color-text);
+  line-height: 1;
+}
+
+.stats-card-trend {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.stats-card-trend-up {
+  color: var(--color-success);
+}
+
+.stats-card-trend-down {
+  color: var(--color-error);
+}
+
+.stats-card-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: var(--radius-lg);
+  transition: all var(--transition-base);
+}
+
+.stats-card-primary {
+  background-color: #e0f2fe;
+  color: var(--color-primary);
+}
+
+.stats-card-success {
+  background-color: #dcfce7;
+  color: var(--color-success);
+}
+
+.stats-card-warning {
+  background-color: #fef3c7;
+  color: var(--color-warning);
+}
+
+.stats-card-error {
+  background-color: #fee2e2;
+  color: var(--color-error);
+}
+
+.stats-card:hover .stats-card-icon {
+  transform: scale(1.1);
+}

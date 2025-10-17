@@ -1,9 +1,0 @@
-[
-  {
-    "name": "Login Request",
-    "request": "fetch(\"https://example.com/login\", {\"headers\": {\"content-type\": \"application/x-www-form-urlencoded\"}, \"body\": \"username=user&password=pass\", \"method\": \"POST\", \"credentials\": \"include\"})",
-    "save_cookies": true,
-    "watch_interval": 300,
-    "watch_interval_display": "5 minutes"
-  }
-]

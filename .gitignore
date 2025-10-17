@@ -6,6 +6,13 @@ requests_archive/
 downloaded_images/
 cookies/
 
+# Environment files (contain sensitive data)
+.env
+.env.local
+.env.development
+.env.production
+.env.test
+
 # Config files (contain sensitive data)
 config/urls.json
 config/requests.json
@@ -39,4 +46,60 @@ ENV/
 
 # OS
 .DS_Store
+Thumbs.db
+
+# VAPID keys
+backend/vapid_keys.json
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+*.tmp
+*.temp
+.tmp/
+.temp/
+
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Docker
+.dockerignore
+
+# Backup files
+*.bak
+*.backup
+*.old
+
+# Secrets and keys
+*.pem
+*.key
+*.crt
+*.p12
+secrets/
+keys/
+
+# IDE specific
+.vscode/settings.json
+.idea/workspace.xml
+.idea/tasks.xml
+.idea/dictionaries
+.idea/shelf
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
 Thumbs.db

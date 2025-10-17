@@ -1,197 +1,254 @@
-# Vigilant - Website & API Change Monitor
+# Vigilant 2.0 - Modern Website & API Change Monitor
 
-A Python-based monitoring tool that tracks changes in websites and API endpoints, with support for authentication, cookie management, and automatic image downloading.
+A complete rewrite of Vigilant as a modern, modular web application with MariaDB, FastAPI backend, and React frontend.
 
-## Features
+## 🚀 Quick Start (One Command!)
 
-- 🔍 Monitor websites and API endpoints for changes
-- 🔐 Authentication support with cookie persistence
-- 📸 Automatic image downloading from API responses
-- 📊 Diff-based change detection with full content archiving
-- ⏰ Configurable check intervals (seconds/minutes/hours/days)
-- 🎨 Terminal UI for easy configuration
-- 📝 Detailed logging with timestamps
-
-## Installation
-
+### Linux / macOS
 ```bash
-# Install dependencies
-pip install -r requirements.txt
+./setup.sh
 ```
 
-## Quick Start
-
-### 1. Configure Authentication (if needed)
-
-Add your login request to `config/requests.json`:
-
-```bash
-python website_monitor.py
-# Select: Manage Requests → Add new request
-# Paste your fetch() request from browser DevTools
-# Enable "save cookies" if the response sets authentication cookies
+### Windows
+```cmd
+setup.bat
 ```
 
-### 2. Add URLs to Monitor
+**That's it!** The script automatically:
+- ✅ Generates VAPID keys for notifications
+- ✅ Creates .env with all settings
+- ✅ Starts all services with Docker
+- ✅ Runs database migrations
 
-Add webpages/APIs to monitor in `config/urls.json`:
+After 30 seconds, open: **http://localhost:5173** 🎉
 
-```bash
-python website_monitor.py
-# Select: Manage Webpages → Add new webpage
-# Enter the URL and optionally link to an auth request
-```
+---
 
-### 3. Start Monitoring
-
-#### Option A: Interactive TUI (Terminal UI)
-```bash
-python website_monitor.py
-# Select: Manage Webpages → Watch webpage
-```
-
-#### Option B: Monitor All (Batch Mode)
-```bash
-python watcher.py
-# Monitors all configured URLs and requests simultaneously
-```
-
-## Project Structure
+## Architecture
 
 ```
 vigilant/
-├── config/                      # Configuration files (gitignored)
-│   ├── urls.json               # URLs/APIs to monitor
-│   ├── requests.json           # Authentication requests
-│   ├── cookies/                # Saved authentication cookies
-│   ├── urls.json.example       # Example URL configuration
-│   └── requests.json.example   # Example request configuration
-│
-├── logs/                        # Change detection logs with diffs
-├── snapshots/                   # Current state snapshots
-├── html_archive/               # Archived webpage content by timestamp
-├── requests_archive/           # Archived API responses by timestamp
-├── downloaded_images/          # Auto-downloaded images from APIs
-│
-├── website_monitor.py          # Main TUI application
-├── watcher.py                  # Core monitoring engine
-├── image_downloader.py         # Standalone image downloader
-├── test_login.py              # Test authentication requests
-└── requirements.txt            # Python dependencies
+├── backend/           # FastAPI REST API
+├── frontend/          # React + TypeScript SPA
+├── docker-compose.yml # Complete stack deployment
+├── setup.sh           # 🆕 One-command setup!
+└── .env              # Auto-generated config
 ```
 
-## Configuration
+## Tech Stack
 
-### URLs Configuration (`config/urls.json`)
+### Backend
+- **FastAPI** - Modern async web framework
+- **SQLAlchemy** - Async ORM
+- **MariaDB** - Database
+- **Alembic** - Database migrations
+- **aiohttp** - Async HTTP client
+- **Web Push** - VAPID notifications
 
-```json
-[
-  {
-    "url": "https://example.com/api/data",
-    "request_name": "Login Request",
-    "watch_interval": 60,
-    "watch_interval_display": "1 minutes"
-  }
-]
-```
+### Frontend
+- **React 18** - UI library
+- **TypeScript** - Type safety
+- **Vite** - Build tool
+- **React Query** - Server state management
+- **React Router** - Client-side routing
 
-### Requests Configuration (`config/requests.json`)
+## Features
 
-```json
-[
-  {
-    "name": "Login Request",
-    "request": "fetch(\"https://example.com/login\", {\"method\": \"POST\", \"body\": \"user=admin&pass=secret\"})",
-    "save_cookies": true,
-    "watch_interval": 300,
-    "watch_interval_display": "5 minutes"
-  }
-]
-```
+- ✅ Website/API monitoring with change detection
+- ✅ Authentication support with cookie management
+- ✅ Configurable check intervals
+- ✅ Diff-based change logs
+- ✅ Image downloading from API responses
+- ✅ **Web push notifications** 🔔
+- ✅ Modern web UI with real-time updates
+- ✅ RESTful API
+- ✅ One-command Docker deployment
 
-## How It Works
+## Manual Setup (Alternative)
 
-1. **Authentication**: Executes login requests to obtain cookies
-2. **Monitoring**: Fetches configured URLs/APIs at specified intervals
-3. **Change Detection**: Compares SHA256 hashes to detect changes
-4. **Logging**: Saves full content + unified diffs when changes occur
-5. **Archiving**: Stores timestamped snapshots of all content
-6. **Images**: Automatically downloads images from JSON API responses
+If you prefer manual setup:
 
-## Special Features
-
-### Automatic Image Downloading
-
-When monitoring APIs that return image URLs (like `server_processing_pics.php`), Vigilant automatically:
-- Parses JSON responses for image URLs
-- Downloads all images with authentication
-- Organizes by timestamp
-- Saves metadata (filename, date, location, etc.)
-
-Images are saved to: `downloaded_images/[timestamp]/`
-
-### Cookie Management
-
-- Cookies are automatically saved from authentication requests
-- Reused for subsequent requests to the same endpoint
-- Stored in: `config/cookies/[request_name].json`
-
-### Diff-Based Logging
-
-Changes are logged with:
-- Full unified diff showing exactly what changed
-- Timestamp and content size comparison
-- Link to archived full content
-- Separate archives for webpages (HTML) vs requests (JSON)
-
-## Usage Examples
-
-### Test Authentication
 ```bash
-python test_login.py
-# Tests the login request and shows cookies received
+# 1. Create .env
+cp .env.example .env
+
+# 2. (Optional) Generate VAPID keys
+python backend/generate_vapid_keys.py
+# Add keys to .env
+
+# 3. Start
+docker-compose up -d
+
+# 4. Open http://localhost:5173
 ```
 
-### Download Images Manually
+## Access Points
+
+- **Frontend**: http://localhost:5173
+- **Backend API**: http://localhost:8000
+- **API Docs**: http://localhost:8000/docs
+
+## Development
+
+### Backend (Highly Modular)
+
+Each API endpoint is a separate file:
+
+```
+backend/app/api/
+├── monitors/
+│   ├── create.py      # POST /api/monitors
+│   ├── list.py        # GET /api/monitors
+│   ├── get.py         # GET /api/monitors/{id}
+│   ├── update.py      # PUT /api/monitors/{id}
+│   ├── delete.py      # DELETE /api/monitors/{id}
+│   └── status.py      # GET/PATCH status
+├── notifications/     # 4 notification endpoints
+└── ... (more modules)
+```
+
+### Frontend (Atomic Design)
+
+Components are fully separated:
+
+```
+frontend/src/
+├── components/
+│   ├── atoms/          # Button, Input, etc.
+│   ├── molecules/      # NotificationToggle, SearchBar
+│   ├── organisms/      # MonitorCard, DiffViewer
+│   └── layout/         # Header, PageLayout
+├── pages/              # Dashboard, Monitors, etc.
+├── services/api/       # API clients
+└── hooks/              # React Query hooks
+```
+
+## API Endpoints
+
+### Monitors
+- `POST /api/monitors` - Create monitor
+- `GET /api/monitors` - List monitors
+- `GET /api/monitors/{id}` - Get details
+- `PUT /api/monitors/{id}` - Update
+- `DELETE /api/monitors/{id}` - Delete
+- `GET/PATCH /api/monitors/{id}/status` - Status
+
+### Notifications 🔔
+- `POST /api/notifications/subscribe` - Subscribe browser
+- `POST /api/notifications/unsubscribe` - Unsubscribe
+- `GET /api/notifications/vapid-public-key` - Get public key
+- `POST /api/notifications/send` - Send notification
+
+Full docs: http://localhost:8000/docs
+
+## Database Schema
+
+- **monitors** - Websites/APIs to monitor
+- **requests** - Request configs
+- **cookies** - Stored auth cookies
+- **snapshots** - Current state
+- **change_logs** - Detected changes with diffs
+- **images** - Downloaded image metadata
+- **notification_subscriptions** - Push notification subscriptions
+- **settings** - Global settings
+
+## Useful Commands
+
 ```bash
-python image_downloader.py
-# Downloads all current images from the pictures API
+# View logs
+docker-compose logs -f
+
+# Restart services
+docker-compose restart
+
+# Stop everything
+docker-compose down
+
+# Access database
+docker-compose exec mariadb mysql -u vigilant -pvigilant vigilant
+
+# Run migrations
+docker-compose exec backend alembic upgrade head
 ```
 
-### Watch Single Webpage
+## Notifications Setup
+
+The `setup.sh` script automatically generates VAPID keys. To do it manually:
+
 ```bash
-python website_monitor.py
-# Interactive menu to select specific webpage to watch
+python backend/generate_vapid_keys.py
+# Add keys to .env
+docker-compose restart backend
 ```
 
-### Monitor Everything
-```bash
-python watcher.py
-# Monitors all configured URLs and requests in batch mode
-```
+See `NOTIFICATION_SETUP.md` for detailed documentation.
 
-## Tips
+## Documentation
 
-- **Finding API Endpoints**: Use browser DevTools (F12) → Network tab → Filter by XHR/Fetch
-- **Copy as Fetch**: Right-click on request → Copy → Copy as fetch
-- **Cookie Debugging**: Check `config/cookies/` to see what cookies were saved
-- **View Diffs**: Check `logs/` for detailed change reports
-- **Browse Archives**: Open `html_archive/` or `requests_archive/` to see historical snapshots
+- 📘 `ONE_COMMAND_SETUP.md` - Quick start guide
+- 📗 `START_HERE.md` - Detailed setup instructions  
+- 📕 `NOTIFICATION_SETUP.md` - Push notifications guide
+- 📙 `GETTING_STARTED.md` - Development guide
 
-## Requirements
+## Architecture Highlights
 
-- Python 3.7+
-- aiohttp >= 3.8.0
+### Maximum Modularity
+- Each API endpoint = separate file
+- Each component = own directory
+- Each service = single responsibility
+- Complete separation of concerns
+
+### Type Safety
+- TypeScript on frontend
+- Pydantic on backend
+- Compile-time error checking
+
+### Async-First
+- Non-blocking I/O
+- Better performance
+- Efficient resource usage
+
+## TODO - Remaining Work
+
+### Backend
+- [ ] Requests API endpoints
+- [ ] Logs API endpoints  
+- [ ] Images API endpoints
+- [ ] Core monitoring engine
+- [ ] WebSocket for real-time updates
+
+### Frontend
+- [ ] More atomic components
+- [ ] DiffViewer organism
+- [ ] ImageGallery organism
+- [ ] Additional pages
+- [ ] Form validation
+
+See full TODO in individual files.
+
+## Migration from v1
+
+Original Python files preserved:
+- `watcher.py` - Original monitoring logic
+- `website_monitor.py` - Original TUI
+- `image_downloader.py` - Image downloader
+
+Reference these for porting logic.
 
 ## License
 
-Open source - use freely for monitoring your own services.
+Open source - use freely.
 
-## Security Note
+## Contributing
 
-⚠️ **Important**: Never commit `config/` directory to public repositories as it may contain:
-- Authentication credentials
-- Session cookies
-- Private API endpoints
+1. Fork the repository
+2. Follow the modular architecture
+3. One file per endpoint/component
+4. Test thoroughly
+5. Submit PR
 
-The `.gitignore` is configured to exclude these by default.
+---
+
+**🚀 Get started in one command: `./setup.sh`**
+
+**📱 Then open: http://localhost:5173**

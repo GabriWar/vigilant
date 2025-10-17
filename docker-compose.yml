@@ -1,0 +1,67 @@
+
+services:
+  # MariaDB Database
+  mariadb:
+    image: mariadb:11.2
+    container_name: vigilant-mariadb
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: vigilant
+      MYSQL_USER: vigilant
+      MYSQL_PASSWORD: vigilant
+    ports:
+      - "3306:3306"
+    volumes:
+      - mariadb_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Backend API
+  backend:
+    build: ./backend
+    container_name: vigilant-backend
+    restart: unless-stopped
+    depends_on:
+      mariadb:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: mysql+aiomysql://vigilant:vigilant@mariadb:3306/vigilant
+      DATABASE_URL_SYNC: mysql+pymysql://vigilant:vigilant@mariadb:3306/vigilant
+      DEBUG: "true"
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app
+      - backend_archives:/app/archives
+      - backend_images:/app/images
+    command: >
+      sh -c "
+        sleep 5 &&
+        alembic upgrade head &&
+        uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+      "
+
+  # Frontend
+  frontend:
+    build: ./frontend
+    container_name: vigilant-frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    environment:
+      - VITE_API_URL=http://localhost:8000
+      - VITE_WS_URL=ws://localhost:8000/ws
+
+volumes:
+  mariadb_data:
+  backend_archives:
+  backend_images:
