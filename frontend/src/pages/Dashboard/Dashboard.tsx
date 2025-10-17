@@ -1,15 +1,15 @@
 import React from 'react';
-import { useMonitors } from '@hooks/useMonitors';
+import { useWatchers } from '@hooks/useWatchers';
 import { useNotifications } from '@hooks/useNotifications';
 import { StatsCard } from '@components/organisms/StatsCard/StatsCard';
-import { MonitorCard } from '@components/organisms/MonitorCard/MonitorCard';
+import { WatcherCard } from '@components/organisms/WatcherCard/WatcherCard';
 import { Spinner } from '@components/atoms/Spinner/Spinner';
 import { Card } from '@components/atoms/Card/Card';
 import { Button } from '@components/atoms/Button/Button';
 import './Dashboard.css';
 
 export const Dashboard: React.FC = () => {
-  const { data: monitors, isLoading, error } = useMonitors({ limit: 10 });
+  const { data: watchers, isLoading, error } = useWatchers({ limit: 10 });
   const { testPing, testCookie } = useNotifications();
 
   if (isLoading) {
@@ -24,15 +24,15 @@ export const Dashboard: React.FC = () => {
   if (error) {
     return (
       <div className="dashboard-error">
-        <p>Error loading monitors</p>
+        <p>Error loading watchers</p>
       </div>
     );
   }
 
-  const activeMonitors = monitors?.filter(m => m.is_active).length || 0;
-  const totalChecks = monitors?.reduce((sum, m) => sum + (m.check_count || 0), 0) || 0;
-  const totalChanges = monitors?.reduce((sum, m) => sum + (m.change_count || 0), 0) || 0;
-  const recentChanges = monitors?.filter(m => m.last_changed_at).length || 0;
+  const activeWatchers = watchers?.filter(w => w.is_active).length || 0;
+  const totalChecks = watchers?.reduce((sum, w) => sum + (w.check_count || 0), 0) || 0;
+  const totalChanges = watchers?.reduce((sum, w) => sum + (w.change_count || 0), 0) || 0;
+  const recentChanges = watchers?.filter(w => w.last_changed_at).length || 0;
 
   return (
     <div className="dashboard">
@@ -63,14 +63,14 @@ export const Dashboard: React.FC = () => {
 
       <div className="dashboard-stats">
         <StatsCard
-          title="Total Monitors"
-          value={monitors?.length || 0}
-          icon="monitor"
+          title="Total Watchers"
+          value={watchers?.length || 0}
+          icon="eye"
           color="primary"
         />
         <StatsCard
-          title="Active Monitors"
-          value={activeMonitors}
+          title="Active Watchers"
+          value={activeWatchers}
           icon="eye"
           color="success"
         />
@@ -90,16 +90,16 @@ export const Dashboard: React.FC = () => {
 
       <div className="dashboard-content">
         <div className="dashboard-section">
-          <h2 className="dashboard-section-title">Recent Monitors</h2>
-          {monitors && monitors.length > 0 ? (
-            <div className="dashboard-monitors">
-              {monitors.slice(0, 6).map((monitor) => (
-                <MonitorCard key={monitor.id} monitor={monitor} />
+          <h2 className="dashboard-section-title">Recent Watchers</h2>
+          {watchers && watchers.length > 0 ? (
+            <div className="dashboard-watchers">
+              {watchers.slice(0, 6).map((watcher) => (
+                <WatcherCard key={watcher.id} watcher={watcher} onEdit={() => {}} />
               ))}
             </div>
           ) : (
             <Card padding="lg" className="dashboard-empty">
-              <p>No monitors found. Create one to get started!</p>
+              <p>No watchers found. Create one to get started!</p>
             </Card>
           )}
         </div>

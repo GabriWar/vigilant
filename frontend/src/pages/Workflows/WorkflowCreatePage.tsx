@@ -6,13 +6,13 @@ import { Icon } from '@components/atoms/Icon/Icon';
 import { Card } from '@components/atoms/Card/Card';
 import { Badge } from '@components/atoms/Badge/Badge';
 import { workflowsApi } from '@services/api/workflows';
-import { requestApi } from '@services/api/requests';
+import { watchersApi } from '@services/api/watchers';
 import { ROUTES } from '@constants/routes';
 import './WorkflowCreatePage.css';
 
 interface WorkflowStep {
   order: number;
-  request_id: number;
+  watcher_id: number;
   continue_on_error: boolean;
   extract_variables: string[];
 }
@@ -27,10 +27,10 @@ export const WorkflowCreatePage: React.FC = () => {
   const [steps, setSteps] = useState<WorkflowStep[]>([]);
   const [showAddStep, setShowAddStep] = useState(false);
 
-  // Fetch requests for step selection
-  const { data: requests } = useQuery({
-    queryKey: ['requests'],
-    queryFn: () => requestApi.getAll(),
+  // Fetch watchers for step selection
+  const { data: watchers } = useQuery({
+    queryKey: ['watchers'],
+    queryFn: () => watchersApi.list(),
   });
 
   // Create mutation
@@ -42,10 +42,10 @@ export const WorkflowCreatePage: React.FC = () => {
     },
   });
 
-  const handleAddStep = (requestId: number) => {
+  const handleAddStep = (watcherId: number) => {
     const newStep: WorkflowStep = {
       order: steps.length + 1,
-      request_id: requestId,
+      watcher_id: watcherId,
       continue_on_error: false,
       extract_variables: [],
     };
@@ -115,8 +115,8 @@ export const WorkflowCreatePage: React.FC = () => {
     }
   };
 
-  const getRequestName = (id: number) => {
-    return requests?.find(ar => ar.id === id)?.name || `Request #${id}`;
+  const getWatcherName = (id: number) => {
+    return watchers?.find(w => w.id === id)?.name || `Watcher #${id}`;
   };
 
   return (
@@ -125,7 +125,7 @@ export const WorkflowCreatePage: React.FC = () => {
         <div>
           <h1 className="workflow-create-title">Create Workflow</h1>
           <p className="workflow-create-subtitle">
-            Chain requests with dynamic variables
+            Chain watchers with dynamic variables
           </p>
         </div>
         <Button variant="secondary" onClick={() => navigate(ROUTES.WORKFLOWS)}>
@@ -220,22 +220,22 @@ export const WorkflowCreatePage: React.FC = () => {
                     <Icon name="x" size="sm" />
                   </button>
                 </div>
-                <div className="workflow-request-list">
-                  {requests && requests.length > 0 ? (
-                    requests.map((authReq) => (
+                <div className="workflow-watcher-list">
+                  {watchers && watchers.length > 0 ? (
+                    watchers.map((watcher) => (
                       <button
-                        key={authReq.id}
+                        key={watcher.id}
                         type="button"
-                        className="workflow-request-item"
-                        onClick={() => handleAddStep(authReq.id)}
+                        className="workflow-watcher-item"
+                        onClick={() => handleAddStep(watcher.id)}
                       >
-                        <div className="workflow-request-info">
+                        <div className="workflow-watcher-info">
                           <Icon name="settings" size="sm" />
                           <div>
-                            <div className="workflow-request-name">{authReq.name}</div>
-                            <div className="workflow-request-meta">
-                              ID: {authReq.id}
-                              {authReq.is_active && (
+                            <div className="workflow-watcher-name">{watcher.name}</div>
+                            <div className="workflow-watcher-meta">
+                              ID: {watcher.id}
+                              {watcher.is_active && (
                                 <Badge variant="success" size="sm">Active</Badge>
                               )}
                             </div>
@@ -245,8 +245,8 @@ export const WorkflowCreatePage: React.FC = () => {
                       </button>
                     ))
                   ) : (
-                    <p className="workflow-no-requests">
-                      No requests available. Create one first.
+                    <p className="workflow-no-watchers">
+                      No watchers available. Create one first.
                     </p>
                   )}
                 </div>
@@ -294,7 +294,7 @@ export const WorkflowCreatePage: React.FC = () => {
                     <div className="workflow-step-request">
                       <Icon name="settings" size="sm" />
                       <span className="workflow-step-request-name">
-                        {getRequestName(step.request_id)}
+                        {getWatcherName(step.watcher_id)}
                       </span>
                     </div>
 

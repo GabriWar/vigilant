@@ -17,60 +17,53 @@ depends_on: Union[str, Sequence[str], None] = None
 
 
 def upgrade() -> None:
-    # Create requests table
+    # Create watchers table (unified monitors and requests)
     op.create_table(
-        'requests',
-        sa.Column('id', sa.Integer(), nullable=False),
-        sa.Column('name', sa.String(255), nullable=False),
-        sa.Column('request_data', sa.Text(), nullable=False),
-        sa.Column('save_cookies', sa.Boolean(), nullable=False),
-        sa.Column('use_cookies', sa.Boolean(), nullable=False, default=False),
-        sa.Column('cookie_request_id', sa.Integer(), nullable=True),
-        sa.Column('watch_interval', sa.Integer(), nullable=True),
-        sa.Column('is_active', sa.Boolean(), nullable=False),
-        sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('CURRENT_TIMESTAMP'), nullable=False),
-        sa.Column('updated_at', sa.DateTime(timezone=True), server_default=sa.text('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'), nullable=False),
-        sa.Column('last_executed_at', sa.DateTime(timezone=True), nullable=True),
-        sa.PrimaryKeyConstraint('id'),
-        sa.UniqueConstraint('name')
-    )
-    op.create_index(op.f('ix_requests_name'), 'requests', ['name'], unique=True)
-
-    # Create monitors table
-    op.create_table(
-        'monitors',
+        'watchers',
         sa.Column('id', sa.Integer(), nullable=False),
         sa.Column('name', sa.String(255), nullable=False),
         sa.Column('url', sa.Text(), nullable=False),
-        sa.Column('monitor_type', sa.String(50), nullable=False),
-        sa.Column('watch_interval', sa.Integer(), nullable=False),
-        sa.Column('is_active', sa.Boolean(), nullable=False),
-        sa.Column('request_id', sa.Integer(), nullable=True),
-        # Additional fields for direct monitor configuration
-        sa.Column('method', sa.String(10), nullable=True, default='GET'),
+        sa.Column('method', sa.String(10), nullable=False, server_default='GET'),
         sa.Column('headers', sa.JSON(), nullable=True),
         sa.Column('body', sa.Text(), nullable=True),
-        sa.Column('save_cookies', sa.Boolean(), nullable=False, default=False),
-        sa.Column('use_cookies', sa.Boolean(), nullable=False, default=False),
-        sa.Column('cookie_request_id', sa.Integer(), nullable=True),
+        
+        # Content and execution settings
+        sa.Column('content_type', sa.String(50), nullable=False, server_default='auto'),  # auto, text, json, html, xml, image, pdf
+        sa.Column('execution_mode', sa.String(50), nullable=False, server_default='scheduled'),  # scheduled, manual, both
+        sa.Column('watch_interval', sa.Integer(), nullable=True),  # seconds, for scheduled execution
+        sa.Column('is_active', sa.Boolean(), nullable=False, server_default='1'),
+        
+        # Cookie settings
+        sa.Column('save_cookies', sa.Boolean(), nullable=False, server_default='0'),
+        sa.Column('use_cookies', sa.Boolean(), nullable=False, server_default='0'),
+        sa.Column('cookie_watcher_id', sa.Integer(), nullable=True),
+        
+        # Change detection
+        sa.Column('comparison_mode', sa.String(50), nullable=False, server_default='hash'),  # hash, content_aware, disabled
+        
+        # Status and tracking
+        sa.Column('status', sa.String(50), nullable=True, server_default='pending'),  # pending, running, success, error
+        sa.Column('error_message', sa.Text(), nullable=True),
+        sa.Column('check_count', sa.Integer(), nullable=False, server_default='0'),
+        sa.Column('change_count', sa.Integer(), nullable=False, server_default='0'),
+        
+        # Timestamps
         sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('CURRENT_TIMESTAMP'), nullable=False),
         sa.Column('updated_at', sa.DateTime(timezone=True), server_default=sa.text('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'), nullable=False),
         sa.Column('last_checked_at', sa.DateTime(timezone=True), nullable=True),
         sa.Column('last_changed_at', sa.DateTime(timezone=True), nullable=True),
-        sa.Column('status', sa.String(50), nullable=True),
-        sa.Column('error_message', sa.Text(), nullable=True),
-        sa.Column('check_count', sa.Integer(), nullable=True),
-        sa.Column('change_count', sa.Integer(), nullable=True),
-        sa.ForeignKeyConstraint(['request_id'], ['requests.id']),
+        
+        sa.ForeignKeyConstraint(['cookie_watcher_id'], ['watchers.id']),
         sa.PrimaryKeyConstraint('id')
     )
-    op.create_index(op.f('ix_monitors_id'), 'monitors', ['id'], unique=False)
+    op.create_index(op.f('ix_watchers_id'), 'watchers', ['id'], unique=False)
+    op.create_index(op.f('ix_watchers_name'), 'watchers', ['name'], unique=False)
 
     # Create cookies table
     op.create_table(
         'cookies',
         sa.Column('id', sa.Integer(), nullable=False),
-        sa.Column('request_id', sa.Integer(), nullable=False),
+        sa.Column('watcher_id', sa.Integer(), nullable=False),
         sa.Column('name', sa.String(255), nullable=False),
         sa.Column('value', sa.Text(), nullable=False),
         sa.Column('domain', sa.String(255), nullable=True),
@@ -78,7 +71,7 @@ def upgrade() -> None:
         sa.Column('expires', sa.DateTime(timezone=True), nullable=True),
         sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('CURRENT_TIMESTAMP'), nullable=False),
         sa.Column('updated_at', sa.DateTime(timezone=True), server_default=sa.text('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'), nullable=False),
-        sa.ForeignKeyConstraint(['request_id'], ['requests.id'], ondelete='CASCADE'),
+        sa.ForeignKeyConstraint(['watcher_id'], ['watchers.id'], ondelete='CASCADE'),
         sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_cookies_id'), 'cookies', ['id'], unique=False)
@@ -101,16 +94,14 @@ def upgrade() -> None:
     op.create_table(
         'snapshots',
         sa.Column('id', sa.Integer(), nullable=False),
-        sa.Column('monitor_id', sa.Integer(), nullable=True),
-        sa.Column('request_id', sa.Integer(), nullable=True),
+        sa.Column('watcher_id', sa.Integer(), nullable=False),
         sa.Column('content', sa.LargeBinary(), nullable=False),
         sa.Column('content_hash', sa.String(64), nullable=False),
         sa.Column('content_size', sa.Integer(), nullable=False),
         sa.Column('content_type', sa.String(100), nullable=True),
         sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('CURRENT_TIMESTAMP'), nullable=False),
         sa.Column('updated_at', sa.DateTime(timezone=True), server_default=sa.text('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'), nullable=False),
-        sa.ForeignKeyConstraint(['monitor_id'], ['monitors.id'], ondelete='CASCADE'),
-        sa.ForeignKeyConstraint(['request_id'], ['requests.id'], ondelete='CASCADE'),
+        sa.ForeignKeyConstraint(['watcher_id'], ['watchers.id'], ondelete='CASCADE'),
         sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_snapshots_content_hash'), 'snapshots', ['content_hash'], unique=False)
@@ -120,8 +111,7 @@ def upgrade() -> None:
     op.create_table(
         'change_logs',
         sa.Column('id', sa.Integer(), nullable=False),
-        sa.Column('monitor_id', sa.Integer(), nullable=True),
-        sa.Column('request_id', sa.Integer(), nullable=True),
+        sa.Column('watcher_id', sa.Integer(), nullable=False),
         sa.Column('change_type', sa.String(50), nullable=False),
         sa.Column('old_content', sa.LargeBinary(), nullable=True),
         sa.Column('new_content', sa.LargeBinary(), nullable=False),
@@ -132,8 +122,7 @@ def upgrade() -> None:
         sa.Column('new_size', sa.Integer(), nullable=False),
         sa.Column('archive_path', sa.String(500), nullable=True),
         sa.Column('detected_at', sa.DateTime(timezone=True), server_default=sa.text('CURRENT_TIMESTAMP'), nullable=False),
-        sa.ForeignKeyConstraint(['monitor_id'], ['monitors.id'], ondelete='CASCADE'),
-        sa.ForeignKeyConstraint(['request_id'], ['requests.id'], ondelete='CASCADE'),
+        sa.ForeignKeyConstraint(['watcher_id'], ['watchers.id'], ondelete='CASCADE'),
         sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_change_logs_detected_at'), 'change_logs', ['detected_at'], unique=False)
@@ -143,7 +132,7 @@ def upgrade() -> None:
     op.create_table(
         'images',
         sa.Column('id', sa.Integer(), nullable=False),
-        sa.Column('monitor_id', sa.Integer(), nullable=False),
+        sa.Column('watcher_id', sa.Integer(), nullable=False),
         sa.Column('filename', sa.String(500), nullable=False),
         sa.Column('original_url', sa.Text(), nullable=False),
         sa.Column('file_path', sa.String(1000), nullable=False),
@@ -154,7 +143,7 @@ def upgrade() -> None:
         sa.Column('image_metadata', sa.JSON(), nullable=True),
         sa.Column('downloaded_at', sa.DateTime(timezone=True), server_default=sa.text('CURRENT_TIMESTAMP'), nullable=False),
         sa.Column('source_date', sa.String(100), nullable=True),
-        sa.ForeignKeyConstraint(['monitor_id'], ['monitors.id'], ondelete='CASCADE'),
+        sa.ForeignKeyConstraint(['watcher_id'], ['watchers.id'], ondelete='CASCADE'),
         sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_images_downloaded_at'), 'images', ['downloaded_at'], unique=False)
@@ -199,6 +188,14 @@ def upgrade() -> None:
         sa.Column('description', sa.Text(), nullable=True),
         sa.Column('is_active', sa.Boolean(), nullable=False, server_default='1'),
         sa.Column('steps', sa.JSON(), nullable=False),
+        # Step format: [
+        #   {
+        #     "order": 1,
+        #     "watcher_id": 123,  # Changed from request_id
+        #     "continue_on_error": false,
+        #     "extract_variables": ["var1", "var2"]
+        #   }
+        # ]
         sa.Column('schedule_enabled', sa.Boolean(), nullable=False, server_default='0'),
         sa.Column('schedule_interval', sa.Integer(), nullable=True),
         sa.Column('last_executed_at', sa.DateTime(timezone=True), nullable=True),
@@ -219,7 +216,7 @@ def upgrade() -> None:
         'variables',
         sa.Column('id', sa.Integer(), nullable=False),
         sa.Column('workflow_id', sa.Integer(), nullable=False),
-        sa.Column('request_id', sa.Integer(), nullable=True),
+        sa.Column('watcher_id', sa.Integer(), nullable=True),  # Changed from request_id
         sa.Column('name', sa.String(255), nullable=False),
         sa.Column('description', sa.Text(), nullable=True),
         sa.Column('source', sa.Enum('response_body', 'response_header', 'cookie', 'static', 'random', name='variablesource'), nullable=False),
@@ -233,7 +230,7 @@ def upgrade() -> None:
         sa.Column('updated_at', sa.DateTime(timezone=True), server_default=sa.text('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'), nullable=False),
         sa.Column('last_extracted_at', sa.DateTime(timezone=True), nullable=True),
         sa.ForeignKeyConstraint(['workflow_id'], ['workflows.id'], ondelete='CASCADE'),
-        sa.ForeignKeyConstraint(['request_id'], ['requests.id'], ),
+        sa.ForeignKeyConstraint(['watcher_id'], ['watchers.id']),
         sa.PrimaryKeyConstraint('id')
     )
 
@@ -249,6 +246,17 @@ def upgrade() -> None:
         sa.Column('steps_completed', sa.Integer(), nullable=False, server_default='0'),
         sa.Column('steps_total', sa.Integer(), nullable=False),
         sa.Column('step_results', sa.JSON(), nullable=False),
+        # Step result format: [
+        #   {
+        #     "order": 1,
+        #     "watcher_id": 123,  # Changed from request_id
+        #     "status": "success",
+        #     "response_status": 200,
+        #     "variables_extracted": {"token": "abc123"},
+        #     "error": null,
+        #     "duration_ms": 150
+        #   }
+        # ]
         sa.Column('variables_extracted', sa.JSON(), nullable=False),
         sa.Column('error_message', sa.Text(), nullable=True),
         sa.Column('error_step', sa.Integer(), nullable=True),
@@ -268,8 +276,7 @@ def downgrade() -> None:
     op.drop_table('snapshots')
     op.drop_table('headers')
     op.drop_table('cookies')
-    op.drop_table('monitors')
-    op.drop_table('requests')
+    op.drop_table('watchers')
 
     # Drop enums (MySQL specific)
     op.execute('DROP TYPE IF EXISTS variablesource')

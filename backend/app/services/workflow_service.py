@@ -11,7 +11,7 @@ from loguru import logger
 from app.models.workflow import Workflow
 from app.models.workflow_execution import WorkflowExecution
 from app.models.variable import Variable
-from app.models.request import Request
+from app.models.watcher import Watcher
 from app.services.variable_service import VariableExtractor, VariableReplacer
 
 
@@ -168,22 +168,22 @@ class WorkflowExecutor:
         try:
             # Get request
             auth_result = await self.db.execute(
-                select(Request).where(Request.id == step['request_id'])
+                select(Watcher).where(Watcher.id == step['request_id'])
             )
             request = auth_result.scalar_one_or_none()
 
             if not request:
                 step_result['status'] = 'failed'
-                step_result['error'] = f"Request {step['request_id']} not found"
+                step_result['error'] = f"Watcher {step['request_id']} not found"
                 return step_result
 
-            # Parse request data
-            try:
-                request_data = json.loads(request.request_data)
-            except json.JSONDecodeError:
-                step_result['status'] = 'failed'
-                step_result['error'] = "Invalid request data JSON"
-                return step_result
+            # Build request data from watcher fields
+            request_data = {
+                'url': request.url,
+                'method': request.method or 'GET',
+                'headers': request.headers or {},
+                'body': request.body
+            }
 
             # Replace variables in request
             request_data = VariableReplacer.replace_in_request_data(request_data, variable_context)

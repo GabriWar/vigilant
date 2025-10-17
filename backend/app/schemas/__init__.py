@@ -1,9 +1,7 @@
 """Pydantic schemas"""
-from app.schemas.monitor import (
-    MonitorBase, MonitorCreate, MonitorUpdate, MonitorInDB, MonitorResponse, MonitorWithStats
-)
-from app.schemas.request import (
-    RequestBase, RequestCreate, RequestUpdate, RequestInDB, RequestResponse
+from app.schemas.watcher import (
+    WatcherBase, WatcherCreate, WatcherUpdate, WatcherInDB, WatcherResponse, 
+    WatcherListResponse, WatcherWithStats, WatcherStatistics
 )
 from app.schemas.cookie import (
     CookieBase, CookieCreate, CookieUpdate, CookieInDB, CookieResponse
@@ -13,7 +11,8 @@ from app.schemas.snapshot import (
 )
 from app.schemas.change_log import (
     ChangeLogBase, ChangeLogCreate, ChangeLogInDB, ChangeLogResponse, 
-    ChangeLogWithContent, ChangeLogWithDiff
+    ChangeLogWithContent, ChangeLogWithDiff, ChangeLogListResponse, ChangeLogStatistics,
+    TopWatcher
 )
 from app.schemas.image import (
     ImageBase, ImageCreate, ImageUpdate, ImageInDB, ImageResponse
@@ -23,17 +22,17 @@ from app.schemas.setting import (
 )
 
 __all__ = [
-    # Monitor
-    "MonitorBase", "MonitorCreate", "MonitorUpdate", "MonitorInDB", "MonitorResponse", "MonitorWithStats",
-    # Request
-    "RequestBase", "RequestCreate", "RequestUpdate", "RequestInDB", "RequestResponse",
+    # Watcher
+    "WatcherBase", "WatcherCreate", "WatcherUpdate", "WatcherInDB", "WatcherResponse",
+    "WatcherListResponse", "WatcherWithStats", "WatcherStatistics",
     # Cookie
     "CookieBase", "CookieCreate", "CookieUpdate", "CookieInDB", "CookieResponse",
     # Snapshot
     "SnapshotBase", "SnapshotCreate", "SnapshotInDB", "SnapshotResponse", "SnapshotWithContent",
     # ChangeLog
     "ChangeLogBase", "ChangeLogCreate", "ChangeLogInDB", "ChangeLogResponse", 
-    "ChangeLogWithContent", "ChangeLogWithDiff",
+    "ChangeLogWithContent", "ChangeLogWithDiff", "ChangeLogListResponse", "ChangeLogStatistics",
+    "TopWatcher",
     # Image
     "ImageBase", "ImageCreate", "ImageUpdate", "ImageInDB", "ImageResponse",
     # Setting

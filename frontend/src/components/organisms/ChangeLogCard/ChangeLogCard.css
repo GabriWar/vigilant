@@ -1,0 +1,153 @@
+/**
+ * ChangeLogCard component styles
+ */
+.change-log-card {
+  transition: all 0.2s ease;
+  border: 1px solid #e5e7eb;
+}
+
+.change-log-card:hover {
+  border-color: #3b82f6;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.change-log-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+
+.change-log-card-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.change-log-card-id {
+  font-size: 0.875rem;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.change-log-card-time {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+.change-log-card-content {
+  margin-bottom: 16px;
+}
+
+.change-log-card-source {
+  margin-bottom: 12px;
+}
+
+.change-log-card-source-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+
+.change-log-card-source-label {
+  font-size: 0.875rem;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.change-log-card-source-link {
+  background: none;
+  border: none;
+  color: #3b82f6;
+  font-size: 0.875rem;
+  cursor: pointer;
+  text-decoration: underline;
+  padding: 0;
+}
+
+.change-log-card-source-link:hover {
+  color: #1d4ed8;
+}
+
+.change-log-card-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.change-log-card-stat {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.875rem;
+}
+
+.change-log-card-stat-label {
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.change-log-card-stat-value {
+  color: #374151;
+}
+
+.change-log-card-size-change {
+  color: #6b7280;
+  font-size: 0.8125rem;
+}
+
+.change-log-card-url {
+  color: #3b82f6;
+  text-decoration: none;
+  font-size: 0.875rem;
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.change-log-card-url:hover {
+  color: #1d4ed8;
+  text-decoration: underline;
+}
+
+.change-log-card-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.change-log-card-action-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .change-log-card-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+  
+  .change-log-card-time {
+    justify-content: flex-end;
+  }
+  
+  .change-log-card-stats {
+    gap: 6px;
+  }
+  
+  .change-log-card-actions {
+    flex-direction: column;
+  }
+  
+  .change-log-card-action-btn {
+    justify-content: center;
+  }
+}

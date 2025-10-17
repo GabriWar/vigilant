@@ -1,0 +1,64 @@
+.execution-mode-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: var(--radius-md);
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+}
+
+.execution-mode-icon {
+  font-size: 0.875rem;
+}
+
+.execution-mode-label {
+  font-size: 0.75rem;
+}
+
+/* Scheduled mode */
+.execution-mode-scheduled {
+  background-color: rgba(14, 165, 233, 0.1);
+  color: var(--color-primary);
+  border: 1px solid rgba(14, 165, 233, 0.3);
+}
+
+.execution-mode-scheduled .execution-mode-icon::before {
+  content: '🕐';
+}
+
+/* Manual mode */
+.execution-mode-manual {
+  background-color: rgba(34, 197, 94, 0.1);
+  color: var(--color-success);
+  border: 1px solid rgba(34, 197, 94, 0.3);
+}
+
+.execution-mode-manual .execution-mode-icon::before {
+  content: '▶️';
+}
+
+/* Both mode */
+.execution-mode-both {
+  background-color: rgba(245, 158, 11, 0.1);
+  color: var(--color-warning);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.execution-mode-both .execution-mode-icon::before {
+  content: '⚙️';
+}
+
+/* Unknown mode */
+.execution-mode-unknown {
+  background-color: var(--color-bg);
+  color: var(--color-text-secondary);
+  border: 1px solid var(--color-border);
+}
+
+.execution-mode-unknown .execution-mode-icon::before {
+  content: '❓';
+}
+

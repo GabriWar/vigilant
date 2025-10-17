@@ -12,9 +12,8 @@ class ChangeLog(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     
-    # Reference to either a monitor or request
-    monitor_id = Column(Integer, ForeignKey("monitors.id"), nullable=True)
-    request_id = Column(Integer, ForeignKey("requests.id"), nullable=True)
+    # Reference to watcher
+    watcher_id = Column(Integer, ForeignKey("watchers.id"), nullable=False)
     
     # Change details
     change_type = Column(String(50), nullable=False)  # 'new', 'modified', 'error'
@@ -39,8 +38,7 @@ class ChangeLog(Base):
     detected_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False, index=True)
     
     # Relationships
-    monitor = relationship("Monitor", back_populates="change_logs")
-    request = relationship("Request", back_populates="change_logs")
+    watcher = relationship("Watcher", back_populates="change_logs")
 
     def __repr__(self):
         return f"<ChangeLog(id={self.id}, type='{self.change_type}', detected_at='{self.detected_at}')>"

@@ -1,0 +1,117 @@
+/**
+ * ChangeLogStats component styles
+ */
+.change-log-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.change-log-stats-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.change-log-stats-title {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.change-log-stats-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 24px;
+  color: var(--color-text-secondary);
+}
+
+.change-log-stats-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+.change-log-stats-charts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 24px;
+}
+
+.change-log-stats-chart {
+  background: var(--color-surface);
+  border-radius: 8px;
+  border: 1px solid var(--color-border);
+  padding: 16px;
+}
+
+.change-log-stats-details {
+  background: var(--color-surface);
+  border-radius: 8px;
+  border: 1px solid var(--color-border);
+  padding: 20px;
+}
+
+.change-log-stats-detail-section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.change-log-stats-detail-title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.change-log-stats-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px;
+}
+
+.change-log-stats-detail-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.change-log-stats-detail-label {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+  font-weight: 500;
+}
+
+.change-log-stats-detail-value {
+  font-size: 1rem;
+  color: var(--color-text);
+  font-weight: 600;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .change-log-stats-cards {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .change-log-stats-charts {
+    grid-template-columns: 1fr;
+  }
+  
+  .change-log-stats-detail-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .change-log-stats-cards {
+    grid-template-columns: 1fr;
+  }
+  
+  .change-log-stats-detail-grid {
+    grid-template-columns: 1fr;
+  }
+}

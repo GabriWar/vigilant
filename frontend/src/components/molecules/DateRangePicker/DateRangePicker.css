@@ -1,0 +1,117 @@
+/**
+ * DateRangePicker component styles
+ */
+.date-range-picker {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  position: relative;
+}
+
+.date-range-picker-inputs {
+  display: flex;
+  align-items: end;
+  gap: 12px;
+}
+
+.date-range-picker-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+}
+
+.date-range-picker-label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #374151;
+}
+
+.date-range-picker-separator {
+  display: flex;
+  align-items: center;
+  padding-bottom: 8px;
+  color: #6b7280;
+}
+
+.date-range-picker-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.date-range-picker-presets-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.date-range-picker-clear-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: #6b7280;
+}
+
+.date-range-picker-presets {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: var(--color-surface);
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  z-index: 10;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.date-range-picker-preset-item {
+  padding: 8px 12px;
+  border: none;
+  background: none;
+  text-align: left;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.875rem;
+  color: #374151;
+  transition: background-color 0.2s;
+}
+
+.date-range-picker-preset-item:hover {
+  background-color: #f3f4f6;
+}
+
+.date-range-picker-summary {
+  padding: 8px 12px;
+  background-color: #f8fafc;
+  border-radius: 6px;
+  border: 1px solid #e2e8f0;
+}
+
+.date-range-picker-summary-text {
+  font-size: 0.875rem;
+  color: #475569;
+  font-weight: 500;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .date-range-picker-inputs {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .date-range-picker-separator {
+    align-self: center;
+    padding: 4px 0;
+    transform: rotate(90deg);
+  }
+  
+  .date-range-picker-actions {
+    flex-wrap: wrap;
+  }
+}

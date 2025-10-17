@@ -1,0 +1,51 @@
+/**
+ * ChangeLogList component styles
+ */
+.change-log-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.change-log-list-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+  gap: 16px;
+}
+
+.change-log-list-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 24px;
+  color: #6b7280;
+}
+
+.change-log-list-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 24px;
+  color: #6b7280;
+  background: var(--color-surface);
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+}
+
+.change-log-list-load-more {
+  display: flex;
+  justify-content: center;
+  padding: 16px 0;
+}
+
+.change-log-list-load-more-btn {
+  min-width: 120px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .change-log-list-grid {
+    grid-template-columns: 1fr;
+  }
+}

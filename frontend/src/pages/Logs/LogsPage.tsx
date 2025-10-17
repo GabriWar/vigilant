@@ -108,7 +108,7 @@ export const LogsPage: React.FC = () => {
 
   const handleDownloadArchive = async (log: ChangeLog) => {
     try {
-      const response = await fetch(`http://localhost:8000/api/logs/${log.id}/download`);
+      const response = await fetch(`http://localhost:8000/api/change-logs/${log.id}/download`);
       if (!response.ok) throw new Error('Download failed');
 
       const blob = await response.blob();

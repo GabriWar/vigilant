@@ -36,28 +36,24 @@ export const Header: React.FC = () => {
         </Link>
 
         <div className="header-links">
-          <Link to={ROUTES.MONITORS} className="header-link">
-            <Icon name="monitor" size="sm" />
-            Monitors
-          </Link>
-          <Link to={ROUTES.REQUESTS} className="header-link">
-            <Icon name="settings" size="sm" />
-            Requests
+          <Link to={ROUTES.WATCHERS} className="header-link">
+            <Icon name="eye" size="sm" />
+            Watchers
           </Link>
           <Link to={ROUTES.WORKFLOWS} className="header-link">
             <Icon name="workflow" size="sm" />
             Workflows
           </Link>
-          <Link to={ROUTES.LOGS} className="header-link">
+          <Link to={ROUTES.CHANGE_LOGS} className="header-link">
             <Icon name="calendar" size="sm" />
             Change Logs
           </Link>
           <Link to={ROUTES.IMAGES} className="header-link">
-            <Icon name="eye" size="sm" />
+            <Icon name="image" size="sm" />
             Images
           </Link>
           <Link to={ROUTES.COOKIES} className="header-link">
-            <Icon name="settings" size="sm" />
+            <Icon name="cookie" size="sm" />
             Cookies
           </Link>
         </div>

@@ -1,5 +1,6 @@
 import { useMutation } from '@tanstack/react-query';
-import { requestApi } from '@services/api/requests';
+import { apiClient } from '@services/api/client';
+import { watchersApi } from '@services/api/watchers';
 
 interface TestRequestData {
   url: string;
@@ -20,7 +21,24 @@ export const useTestRequest = () => {
   return useMutation<TestRequestResponse, Error, TestRequestData>({
     mutationFn: async (data) => {
       try {
-        return await requestApi.test(data);
+        // Create a temporary watcher for testing
+        const testWatcher = await watchersApi.create({
+          name: 'Test Watcher',
+          url: data.url,
+          method: data.method,
+          headers: data.headers,
+          body: data.body,
+          execution_mode: 'manual',
+          is_active: true
+        });
+        
+        // Execute the watcher
+        const result = await watchersApi.execute(testWatcher.id);
+        
+        // Delete the test watcher
+        await watchersApi.delete(testWatcher.id);
+        
+        return result.result;
       } catch (error: any) {
         // Capturar informações detalhadas do erro
         const errorResponse = {

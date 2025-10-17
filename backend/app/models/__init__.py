@@ -1,6 +1,5 @@
 """SQLAlchemy models"""
-from app.models.monitor import Monitor
-from app.models.request import Request
+from app.models.watcher import Watcher
 from app.models.cookie import Cookie
 from app.models.header import Header
 from app.models.snapshot import Snapshot
@@ -12,8 +11,7 @@ from app.models.workflow import Workflow
 from app.models.workflow_execution import WorkflowExecution
 
 __all__ = [
-    "Monitor",
-    "Request",
+    "Watcher",
     "Cookie",
     "Header",
     "Snapshot",

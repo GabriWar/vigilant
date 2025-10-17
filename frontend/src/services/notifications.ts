@@ -78,7 +78,7 @@ class NotificationService {
     this.pollingInterval = setInterval(async () => {
       try {
         // Get recent logs that might contain ping results
-        const response = await apiClient.get('/api/logs?limit=10');
+        const response = await apiClient.get('/api/change-logs?limit=10');
         const logs = response.data;
         
         // Check for ping-related logs

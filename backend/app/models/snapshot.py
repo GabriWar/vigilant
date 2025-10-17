@@ -12,9 +12,8 @@ class Snapshot(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     
-    # Reference to either a monitor or request
-    monitor_id = Column(Integer, ForeignKey("monitors.id"), nullable=True)
-    request_id = Column(Integer, ForeignKey("requests.id"), nullable=True)
+    # Reference to watcher
+    watcher_id = Column(Integer, ForeignKey("watchers.id"), nullable=False)
     
     # Content
     content = Column(LargeBinary, nullable=False)  # Store as binary for efficiency
@@ -27,8 +26,7 @@ class Snapshot(Base):
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
     
     # Relationships
-    monitor = relationship("Monitor", back_populates="snapshots")
-    request = relationship("Request", back_populates="snapshots")
+    watcher = relationship("Watcher", back_populates="snapshots")
 
     def __repr__(self):
         return f"<Snapshot(id={self.id}, hash='{self.content_hash[:16]}...', size={self.content_size})>"

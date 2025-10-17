@@ -11,7 +11,7 @@ class Image(Base):
     __tablename__ = "images"
 
     id = Column(Integer, primary_key=True, index=True)
-    monitor_id = Column(Integer, ForeignKey("monitors.id"), nullable=False)
+    watcher_id = Column(Integer, ForeignKey("watchers.id"), nullable=False)
     
     # Image details
     filename = Column(String(500), nullable=False)
@@ -32,7 +32,7 @@ class Image(Base):
     source_date = Column(String(100), nullable=True)  # Original date from API
     
     # Relationships
-    monitor = relationship("Monitor", back_populates="images")
+    watcher = relationship("Watcher", back_populates="images")
 
     def __repr__(self):
-        return f"<Image(id={self.id}, filename='{self.filename}', monitor_id={self.monitor_id})>"
+        return f"<Image(id={self.id}, filename='{self.filename}', watcher_id={self.watcher_id})>"

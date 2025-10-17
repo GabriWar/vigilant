@@ -34,7 +34,7 @@ class Variable(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     workflow_id = Column(Integer, ForeignKey("workflows.id", ondelete="CASCADE"), nullable=False)
-    request_id = Column(Integer, ForeignKey("requests.id"), nullable=True)
+    watcher_id = Column(Integer, ForeignKey("watchers.id"), nullable=True)
 
     # Variable definition
     name = Column(String(255), nullable=False)  # Variable name (used as [[name]])
@@ -62,7 +62,7 @@ class Variable(Base):
 
     # Relationships
     workflow = relationship("Workflow", back_populates="variables")
-    request = relationship("Request", foreign_keys=[request_id])
+    watcher = relationship("Watcher", back_populates="variables", foreign_keys=[watcher_id])
 
     def __repr__(self):
         return f"<Variable(id={self.id}, name='{self.name}', source='{self.source}')>"

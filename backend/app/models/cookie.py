@@ -11,7 +11,7 @@ class Cookie(Base):
     __tablename__ = "cookies"
 
     id = Column(Integer, primary_key=True, index=True)
-    request_id = Column(Integer, ForeignKey("requests.id"), nullable=False)
+    watcher_id = Column(Integer, ForeignKey("watchers.id"), nullable=False)
     
     # Cookie data
     name = Column(String(255), nullable=False)
@@ -25,7 +25,7 @@ class Cookie(Base):
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
     
     # Relationships
-    request = relationship("Request", back_populates="cookies")
+    watcher = relationship("Watcher", back_populates="cookies")
 
     def __repr__(self):
-        return f"<Cookie(id={self.id}, name='{self.name}', request_id={self.request_id})>"
+        return f"<Cookie(id={self.id}, name='{self.name}', watcher_id={self.watcher_id})>"

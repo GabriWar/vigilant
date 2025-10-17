@@ -34,7 +34,7 @@ export const logsApi = {
     request_id?: number;
     change_type?: string;
   }): Promise<ChangeLog[]> => {
-    const response = await apiClient.get('/api/logs', { params });
+    const response = await apiClient.get('/api/change-logs', { params });
     return response.data;
   },
 
@@ -42,7 +42,7 @@ export const logsApi = {
    * Get change log by ID
    */
   getById: async (id: number): Promise<ChangeLog> => {
-    const response = await apiClient.get(`/api/logs/${id}`);
+    const response = await apiClient.get(`/api/change-logs/${id}`);
     return response.data;
   },
 
@@ -50,7 +50,7 @@ export const logsApi = {
    * Delete change log
    */
   delete: async (id: number): Promise<{ message: string }> => {
-    const response = await apiClient.delete(`/api/logs/${id}`);
+    const response = await apiClient.delete(`/api/change-logs/${id}`);
     return response.data;
   },
 
@@ -58,7 +58,7 @@ export const logsApi = {
    * Get change log statistics
    */
   getStatistics: async (): Promise<ChangeLogStatistics> => {
-    const response = await apiClient.get('/api/logs/statistics');
+    const response = await apiClient.get('/api/change-logs/statistics');
     return response.data;
   },
 };

@@ -1,0 +1,215 @@
+/**
+ * ChangeLogComparator component styles
+ */
+.change-log-comparator {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.change-log-comparator-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 0;
+}
+
+.change-log-comparator-title {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #374151;
+}
+
+.change-log-comparator-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.change-log-comparator-select-all {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.change-log-comparator-compare-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.change-log-comparator-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.change-log-comparator-item {
+  transition: all 0.2s ease;
+  border: 1px solid #e5e7eb;
+}
+
+.change-log-comparator-item:hover {
+  border-color: #3b82f6;
+}
+
+.change-log-comparator-item-selected {
+  border-color: #3b82f6;
+  background-color: #eff6ff;
+}
+
+.change-log-comparator-item-content {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.change-log-comparator-checkbox {
+  margin-top: 2px;
+}
+
+.change-log-comparator-item-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.change-log-comparator-item-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.change-log-comparator-item-date {
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+.change-log-comparator-item-details {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.change-log-comparator-item-source {
+  font-weight: 500;
+  color: #374151;
+}
+
+.change-log-comparator-item-size {
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+/* Comparison Modal Styles */
+.change-log-comparison {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.change-log-comparison-metadata {
+  padding: 16px;
+  background-color: #f8fafc;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+}
+
+.change-log-comparison-metadata p {
+  margin: 0;
+  font-size: 0.875rem;
+  color: #475569;
+}
+
+.change-log-comparison-content {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.change-log-comparison-item {
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 16px;
+  background: var(--color-surface);
+}
+
+.change-log-comparison-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.change-log-comparison-item-header h4 {
+  margin: 0;
+  font-size: 1rem;
+  color: #374151;
+}
+
+.change-log-comparison-item-info {
+  margin-bottom: 12px;
+}
+
+.change-log-comparison-item-info p {
+  margin: 4px 0;
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+.change-log-comparison-item-diff {
+  border-top: 1px solid #e5e7eb;
+  padding-top: 12px;
+}
+
+.change-log-comparison-item-diff h5 {
+  margin: 0 0 8px 0;
+  font-size: 0.875rem;
+  color: #374151;
+}
+
+.change-log-comparison-diff-content {
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 4px;
+  padding: 12px;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-size: 0.75rem;
+  line-height: 1.4;
+  color: #374151;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .change-log-comparator-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+  
+  .change-log-comparator-actions {
+    justify-content: space-between;
+  }
+  
+  .change-log-comparator-item-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .change-log-comparator-item-details {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+}

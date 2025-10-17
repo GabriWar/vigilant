@@ -32,6 +32,8 @@ export const DiffViewer: React.FC<DiffViewerProps> = ({
   oldSize,
   newSize,
 }) => {
+  console.log('DiffViewer rendered, isOpen:', isOpen, 'diff length:', diff?.length);
+  
   const parsedDiff = useMemo(() => {
     const lines = diff.split('\n');
     const parsed: DiffLine[] = [];

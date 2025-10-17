@@ -8,8 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.database import AsyncSessionLocal
 from app.services.cookie_service import CookieService
 from app.services.notification_service import NotificationService
-from app.services.monitor_executor import MonitorExecutor
-from app.services.request_executor import RequestExecutor
+from app.services.watcher_executor import WatcherExecutor
 from app.config import settings
 
 
@@ -32,8 +31,7 @@ class SchedulerService:
         self._add_cookie_check_task()
         self._add_cookie_cleanup_task()
         self._add_cookie_notification_task()
-        self._add_monitor_execution_task()
-        self._add_request_execution_task()
+        self._add_watcher_execution_task()
 
         self.scheduler.start()
         self._started = True
@@ -82,43 +80,24 @@ class SchedulerService:
         )
         logger.info("Added task: Notify expiring cookies (every 6 hours)")
 
-    def _add_monitor_execution_task(self):
-        """Add task to execute monitors (every minute)"""
+    def _add_watcher_execution_task(self):
+        """Add task to execute watchers (every minute)"""
         self.scheduler.add_job(
-            self._execute_monitors,
+            self._execute_watchers,
             trigger=IntervalTrigger(minutes=1),
-            id="execute_monitors",
-            name="Execute monitors",
+            id="execute_watchers",
+            name="Execute watchers",
             replace_existing=True
         )
-        logger.info("Added task: Execute monitors (every 1 minute)")
+        logger.info("Added task: Execute watchers (every 1 minute)")
 
-    def _add_request_execution_task(self):
-        """Add task to execute requests (every minute)"""
-        self.scheduler.add_job(
-            self._execute_requests,
-            trigger=IntervalTrigger(minutes=1),
-            id="execute_requests",
-            name="Execute requests",
-            replace_existing=True
-        )
-        logger.info("Added task: Execute requests (every 1 minute)")
-
-    async def _execute_monitors(self):
-        """Execute all active monitors"""
+    async def _execute_watchers(self):
+        """Execute all active watchers"""
         try:
             async with AsyncSessionLocal() as db:
-                await MonitorExecutor.execute_all_active_monitors(db)
+                await WatcherExecutor.execute_all_scheduled_watchers(db)
         except Exception as e:
-            logger.error(f"Error executing monitors: {e}")
-
-    async def _execute_requests(self):
-        """Execute all active requests"""
-        try:
-            async with AsyncSessionLocal() as db:
-                await RequestExecutor.execute_all_active_requests(db)
-        except Exception as e:
-            logger.error(f"Error executing requests: {e}")
+            logger.error(f"Error executing watchers: {e}")
 
     async def _check_cookies_expiring_soon(self):
         """Check for cookies expiring within 24 hours"""
@@ -175,25 +154,25 @@ class SchedulerService:
                     logger.info("No cookies expiring soon, no notifications sent")
                     return
 
-                # Group cookies by request
+                # Group cookies by watcher
                 from collections import defaultdict
-                cookies_by_request = defaultdict(list)
+                cookies_by_watcher = defaultdict(list)
 
                 for cookie in cookies:
-                    cookies_by_request[cookie.request_id].append(cookie)
+                    cookies_by_watcher[cookie.watcher_id].append(cookie)
 
-                # Send notification for each request
+                # Send notification for each watcher
                 notification_count = 0
-                for request_id, request_cookies in cookies_by_request.items():
-                    cookie_names = [c.name for c in request_cookies]
+                for watcher_id, watcher_cookies in cookies_by_watcher.items():
+                    cookie_names = [c.name for c in watcher_cookies]
                     expires_in_hours = min(
                         CookieService.get_expires_in_seconds(c) // 3600
-                        for c in request_cookies
+                        for c in watcher_cookies
                     )
 
                     title = "🍪 Cookies Expiring Soon"
                     message = (
-                        f"{len(request_cookies)} cookie(s) expiring within {expires_in_hours}h: "
+                        f"{len(watcher_cookies)} cookie(s) expiring within {expires_in_hours}h: "
                         f"{', '.join(cookie_names[:3])}"
                     )
                     if len(cookie_names) > 3:
@@ -207,19 +186,19 @@ class SchedulerService:
                             message=message,
                             data={
                                 "type": "cookie_expiring",
-                                "request_id": request_id,
-                                "cookie_count": len(request_cookies)
+                                "watcher_id": watcher_id,
+                                "cookie_count": len(watcher_cookies)
                             }
                         )
                         notification_count += 1
                         logger.info(
-                            f"Sent notification for request {request_id}: "
-                            f"{len(request_cookies)} cookies expiring"
+                            f"Sent notification for watcher {watcher_id}: "
+                            f"{len(watcher_cookies)} cookies expiring"
                         )
                     except Exception as e:
                         logger.error(
-                            f"Failed to send notification for request "
-                            f"{request_id}: {e}"
+                            f"Failed to send notification for watcher "
+                            f"{watcher_id}: {e}"
                         )
 
                 logger.info(

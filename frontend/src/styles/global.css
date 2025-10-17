@@ -24,6 +24,11 @@
   --color-text: #111827;
   --color-text-secondary: #6b7280;
   --color-text-disabled: #9ca3af;
+  
+  /* Additional light mode colors */
+  --color-surface-elevated: #ffffff;
+  --color-border-light: #d1d5db;
+  --color-text-muted: #6b7280;
 
   /* Spacing */
   --spacing-xs: 0.25rem;
@@ -50,6 +55,23 @@
   --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
   --transition-base: 200ms cubic-bezier(0.4, 0, 0.2, 1);
   --transition-slow: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Dark mode variables */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-bg: #111827;
+    --color-surface: #1f2937;
+    --color-border: #374151;
+    --color-text: #f9fafb;
+    --color-text-secondary: #d1d5db;
+    --color-text-disabled: #9ca3af;
+    
+    /* Additional dark mode colors */
+    --color-surface-elevated: #374151;
+    --color-border-light: #4b5563;
+    --color-text-muted: #9ca3af;
+  }
 }
 
 html {
