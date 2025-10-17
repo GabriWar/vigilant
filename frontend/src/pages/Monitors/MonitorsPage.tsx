@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useMonitors, useDeleteMonitor } from '@hooks/useMonitors';
+import { useMonitors, useDeleteMonitor, useTestRequest } from '@hooks/useMonitors';
+import { useLogs } from '@hooks/useLogs';
 import { Button } from '@components/atoms/Button/Button';
 import { SearchBar } from '@components/molecules/SearchBar/SearchBar';
 import { FilterBar, FilterOption } from '@components/molecules/FilterBar/FilterBar';
@@ -8,20 +9,26 @@ import { MonitorCard } from '@components/organisms/MonitorCard/MonitorCard';
 import { Spinner } from '@components/atoms/Spinner/Spinner';
 import { Card } from '@components/atoms/Card/Card';
 import { Icon } from '@components/atoms/Icon/Icon';
-import { AlertModal, ConfirmModal } from '@components/molecules';
+import { AlertModal, ConfirmModal, TestResultModal } from '@components/molecules';
 import { useModal } from '@hooks/useModal';
 import { ROUTES } from '@constants/routes';
 import './MonitorsPage.css';
 
 export const MonitorsPage: React.FC = () => {
   const navigate = useNavigate();
-  const { data: monitors, isLoading, error } = useMonitors();
+  const { data: monitors, isLoading, error, refetch } = useMonitors();
+  const { refetch: refetchLogs } = useLogs();
   const deleteMonitor = useDeleteMonitor();
+  const testRequest = useTestRequest();
   const { showAlert, showConfirm, hideAlert, hideConfirm, handleConfirm, alertModal, confirmModal } = useModal();
 
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [typeFilter, setTypeFilter] = useState('all');
+  const [refetchingMonitors, setRefetchingMonitors] = useState<Set<number>>(new Set());
+  const [testResult, setTestResult] = useState<any>(null);
+  const [isTestModalOpen, setIsTestModalOpen] = useState(false);
+  const [isTestLoading, setIsTestLoading] = useState(false);
 
   const handleEdit = (monitor: any) => {
     navigate(`/monitors/${monitor.id}/edit`);
@@ -49,6 +56,100 @@ export const MonitorsPage: React.FC = () => {
         }
       }
     );
+  };
+
+  const handleTestRequest = async (monitor: any) => {
+    setIsTestLoading(true);
+    setIsTestModalOpen(true);
+    
+    try {
+      const result = await testRequest.mutateAsync({
+        url: monitor.url,
+        method: 'GET',
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36'
+        }
+      });
+
+      // Format the result for the modal
+      const formattedResult = {
+        status: result.status,
+        statusText: result.statusText,
+        headers: result.headers,
+        body: result.body,
+        cookies: result.cookies,
+        requestData: {
+          url: monitor.url,
+          method: 'GET',
+          headers: {
+            'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36'
+          }
+        },
+        responseTime: result.headers['x-response-time'] ? parseInt(result.headers['x-response-time']) : undefined
+      };
+
+      setTestResult(formattedResult);
+      
+      // Invalidate logs to refresh them with new data (only for testing)
+      refetchLogs();
+    } catch (error: any) {
+      console.error('Error testing request:', error);
+      setTestResult({
+        error: error.response?.data?.detail || 'Failed to test request',
+        errorDetails: {
+          code: error.response?.status?.toString(),
+          message: error.message,
+          details: error.response?.data
+        },
+        requestData: {
+          url: monitor.url,
+          method: 'GET',
+          headers: {
+            'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36'
+          }
+        }
+      });
+    } finally {
+      setIsTestLoading(false);
+    }
+  };
+
+  const handleForceRequest = async (monitor: any) => {
+    setRefetchingMonitors(prev => new Set(prev).add(monitor.id));
+    
+    try {
+      // Force a request without testing - just execute the monitor
+      await testRequest.mutateAsync({
+        url: monitor.url,
+        method: 'GET',
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36'
+        }
+      });
+      
+      // Refetch all monitors to get updated data
+      await refetch();
+      
+      // Show success message
+      showAlert({
+        title: 'Request Executed',
+        message: `Monitor "${monitor.name}" request has been executed successfully.`,
+        type: 'success'
+      });
+    } catch (error) {
+      console.error('Error executing request:', error);
+      showAlert({
+        title: 'Request Failed',
+        message: 'Failed to execute monitor request.',
+        type: 'error'
+      });
+    } finally {
+      setRefetchingMonitors(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(monitor.id);
+        return newSet;
+      });
+    }
   };
 
   const filteredMonitors = useMemo(() => {
@@ -116,12 +217,22 @@ export const MonitorsPage: React.FC = () => {
             Manage and track all your website and API monitors
           </p>
         </div>
-        <Link to={ROUTES.MONITOR_CREATE}>
-          <Button>
-            <Icon name="plus" size="sm" />
-            Create Monitor
+        <div className="monitors-header-actions">
+          <Button
+            variant="secondary"
+            onClick={() => refetch()}
+            disabled={isLoading}
+          >
+            <Icon name="refresh" size="sm" />
+            Refresh All
           </Button>
-        </Link>
+          <Link to={ROUTES.MONITOR_CREATE}>
+            <Button>
+              <Icon name="plus" size="sm" />
+              Create Monitor
+            </Button>
+          </Link>
+        </div>
       </div>
 
       <div className="monitors-controls">
@@ -160,6 +271,8 @@ export const MonitorsPage: React.FC = () => {
                 monitor={monitor}
                 onEdit={handleEdit}
                 onDelete={handleDelete}
+                onRefetch={handleForceRequest}
+                isRefetching={refetchingMonitors.has(monitor.id)}
               />
             ))}
           </div>
@@ -201,6 +314,16 @@ export const MonitorsPage: React.FC = () => {
         confirmText={confirmModal.options.confirmText}
         cancelText={confirmModal.options.cancelText}
         isLoading={confirmModal.isLoading}
+      />
+
+      <TestResultModal
+        isOpen={isTestModalOpen}
+        onClose={() => {
+          setIsTestModalOpen(false);
+          setTestResult(null);
+        }}
+        result={testResult}
+        isLoading={isTestLoading}
       />
     </div>
   );

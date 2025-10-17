@@ -64,4 +64,17 @@ export const monitorApi = {
     );
     return data;
   },
+
+  /**
+   * Test monitor request
+   */
+  testRequest: async (url: string, method: string = 'GET', headers: Record<string, string> = {}, body?: string) => {
+    const { data } = await apiClient.post('/api/requests/test/', {
+      url,
+      method,
+      headers,
+      body
+    });
+    return data;
+  },
 };

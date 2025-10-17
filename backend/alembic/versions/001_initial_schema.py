@@ -31,7 +31,7 @@ def upgrade() -> None:
         sa.Column('last_executed_at', sa.DateTime(timezone=True), nullable=True),
         sa.PrimaryKeyConstraint('id'),
         sa.UniqueConstraint('name')
-    )
+        )
     op.create_index(op.f('ix_requests_name'), 'requests', ['name'], unique=True)
 
     # Create monitors table
@@ -73,6 +73,20 @@ def upgrade() -> None:
         sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_cookies_id'), 'cookies', ['id'], unique=False)
+
+    # Create headers table
+    op.create_table(
+        'headers',
+        sa.Column('id', sa.Integer(), nullable=False),
+        sa.Column('name', sa.String(255), nullable=False),
+        sa.Column('value', sa.Text(), nullable=False),
+        sa.Column('description', sa.Text(), nullable=True),
+        sa.Column('is_active', sa.Boolean(), nullable=False, server_default='1'),
+        sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('CURRENT_TIMESTAMP'), nullable=False),
+        sa.Column('updated_at', sa.DateTime(timezone=True), server_default=sa.text('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'), nullable=False),
+        sa.PrimaryKeyConstraint('id')
+    )
+    op.create_index(op.f('ix_headers_name'), 'headers', ['name'], unique=False)
 
     # Create snapshots table
     op.create_table(
@@ -243,6 +257,7 @@ def downgrade() -> None:
     op.drop_table('images')
     op.drop_table('change_logs')
     op.drop_table('snapshots')
+    op.drop_table('headers')
     op.drop_table('cookies')
     op.drop_table('monitors')
     op.drop_table('requests')

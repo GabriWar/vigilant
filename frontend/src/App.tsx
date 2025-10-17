@@ -25,7 +25,7 @@ function App() {
           <Route path={ROUTES.LOGS} element={<LogsPage />} />
           <Route path={ROUTES.REQUESTS} element={<RequestsPage />} />
           <Route path={ROUTES.IMAGES} element={<ImagesPage />} />
-          <Route path="/cookies" element={<CookiesPage />} />
+          <Route path={ROUTES.COOKIES} element={<CookiesPage />} />
           <Route path={ROUTES.WORKFLOWS} element={<WorkflowsPage />} />
           <Route path={ROUTES.WORKFLOW_CREATE} element={<WorkflowCreatePage />} />
         </Route>

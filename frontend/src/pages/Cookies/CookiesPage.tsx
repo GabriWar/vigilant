@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { PageLayout } from '@components/layout/PageLayout/PageLayout';
 import { Button } from '@components/atoms/Button/Button';
 import { Badge } from '@components/atoms/Badge/Badge';
 import { Icon } from '@components/atoms/Icon/Icon';
@@ -84,36 +83,67 @@ export const CookiesPage: React.FC = () => {
     return (
       <Card key={cookie.id} className={`cookie-card ${isExpired ? 'expired' : ''}`}>
         <div className="cookie-card-header">
-          <div className="cookie-card-name">{cookie.name}</div>
+          <div className="cookie-card-title">
+            <Icon name="cookie" size="sm" />
+            <div className="cookie-card-name">{cookie.name}</div>
+          </div>
           <Badge variant={badge.variant}>{badge.text}</Badge>
         </div>
 
-        <div className="cookie-card-value">{cookie.value}</div>
+        <div className="cookie-card-value">
+          <div className="cookie-card-value-label">Value:</div>
+          <div className="cookie-card-value-content">{cookie.value}</div>
+        </div>
 
         <div className="cookie-card-details">
           {cookie.domain && (
             <div className="cookie-card-detail">
               <Icon name="globe" size="sm" />
-              <span>{cookie.domain}</span>
+              <span className="cookie-card-detail-label">Domain:</span>
+              <span className="cookie-card-detail-value">{cookie.domain}</span>
             </div>
           )}
           {cookie.path && (
             <div className="cookie-card-detail">
               <Icon name="folder" size="sm" />
-              <span>{cookie.path}</span>
+              <span className="cookie-card-detail-label">Path:</span>
+              <span className="cookie-card-detail-value">{cookie.path}</span>
             </div>
           )}
-          {cookie.expires && (
+          {cookie.expires ? (
             <div className="cookie-card-detail">
               <Icon name="clock" size="sm" />
-              <span>{new Date(cookie.expires).toLocaleString()}</span>
+              <span className="cookie-card-detail-label">Expires:</span>
+              <span className="cookie-card-detail-value">{new Date(cookie.expires).toLocaleString()}</span>
+            </div>
+          ) : (
+            <div className="cookie-card-detail">
+              <Icon name="clock" size="sm" />
+              <span className="cookie-card-detail-label">Type:</span>
+              <span className="cookie-card-detail-value">Session Cookie (no expiration)</span>
             </div>
           )}
+          <div className="cookie-card-detail">
+            <Icon name="calendar" size="sm" />
+            <span className="cookie-card-detail-label">Created:</span>
+            <span className="cookie-card-detail-value">{new Date(cookie.created_at).toLocaleString()}</span>
+          </div>
+          <div className="cookie-card-detail">
+            <Icon name="refresh" size="sm" />
+            <span className="cookie-card-detail-label">Updated:</span>
+            <span className="cookie-card-detail-value">{new Date(cookie.updated_at).toLocaleString()}</span>
+          </div>
         </div>
 
         <div className="cookie-card-meta">
-          <span className="cookie-card-id">ID: {cookie.id}</span>
-          <span className="cookie-card-auth">Request: {cookie.request_id}</span>
+          <span className="cookie-card-id">
+            <Icon name="info" size="xs" />
+            ID: {cookie.id}
+          </span>
+          <span className="cookie-card-request">
+            <Icon name="settings" size="xs" />
+            Request: {cookie.request_id}
+          </span>
         </div>
       </Card>
     );
@@ -176,11 +206,19 @@ export const CookiesPage: React.FC = () => {
   };
 
   return (
-    <PageLayout title="Cookie Management">
-      <div className="cookies-page">
-        {/* Statistics */}
-        <div className="cookies-stats-section">
-          <CookieStatsCard statistics={statistics!} isLoading={statsLoading} />
+    <div className="cookies-page">
+      <div className="cookies-header">
+        <div>
+          <h1 className="cookies-title">Cookie Management</h1>
+          <p className="cookies-subtitle">
+            Manage authentication cookies and monitor expiration
+          </p>
+        </div>
+      </div>
+
+      {/* Statistics */}
+      <div className="cookies-stats-section">
+          <CookieStatsCard statistics={statistics || { total: 0, valid: 0, expired: 0, expiring_soon_24h: 0, session: 0 }} isLoading={statsLoading} />
         </div>
 
         {/* Actions */}
@@ -246,6 +284,5 @@ export const CookiesPage: React.FC = () => {
           variant="danger"
         />
       </div>
-    </PageLayout>
   );
 };

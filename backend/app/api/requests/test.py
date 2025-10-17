@@ -2,10 +2,12 @@
 import json
 import aiohttp
 from typing import Dict, Any, Optional, List
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, HTTPException, status, Depends
 from pydantic import BaseModel
 from datetime import datetime, timezone
 from http.cookies import SimpleCookie
+from sqlalchemy.orm import Session
+from app.database import get_db
 
 router = APIRouter(prefix="/test", tags=["test"])
 
@@ -30,6 +32,8 @@ class TestRequestData(BaseModel):
     method: str
     headers: Dict[str, str]
     body: Optional[str] = None
+    cookies: Optional[Dict[str, str]] = None  # Additional cookies to send
+    header_set_id: Optional[int] = None  # ID of header set to use
 
 
 class TestRequestResponse(BaseModel):
@@ -139,17 +143,31 @@ async def debug_test():
         return {"error": str(e)}
 
 @router.post("/", response_model=TestRequestResponse)
-async def test_request(data: TestRequestData):
+async def test_request(data: TestRequestData, db: Session = Depends(get_db)):
     """
     Test a request without saving it
     
     Args:
         data: Request test data
+        db: Database session
         
     Returns:
         Test result with response details
     """
     try:
+        # Get additional headers from database if header_set_id is provided
+        additional_headers = {}
+        if data.header_set_id:
+            from app.services.header_service import HeaderService
+            header_service = HeaderService(db)
+            additional_headers = header_service.get_active_headers_dict()
+        
+        # Merge headers: additional headers first, then provided headers (provided headers override)
+        merged_headers = {**additional_headers, **data.headers}
+        
+        # Prepare cookies
+        cookies_to_send = data.cookies or {}
+        
         # Create session with specific configuration to mimic browser behavior
         connector = aiohttp.TCPConnector(limit=100, limit_per_host=30)
         timeout = aiohttp.ClientTimeout(total=30, connect=10, sock_read=10)
@@ -165,10 +183,14 @@ async def test_request(data: TestRequestData):
             request_kwargs = {
                 'url': data.url,
                 'method': data.method,
-                'headers': data.headers,
+                'headers': merged_headers,
                 'allow_redirects': True,
                 'max_redirects': 10
             }
+            
+            # Add cookies if provided
+            if cookies_to_send:
+                request_kwargs['cookies'] = cookies_to_send
             
             # Add body for POST/PUT/PATCH requests
             if data.body and data.method.upper() in ['POST', 'PUT', 'PATCH']:

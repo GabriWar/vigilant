@@ -31,46 +31,46 @@ async def create_request(
 
     # Validate and parse request_data JSON
     try:
-        request_data = json.loads(request_data.request_data)
+        parsed_data = json.loads(request_data.request_data)
 
         # Validate required fields
-        if "url" not in request_data:
+        if "url" not in parsed_data:
             raise HTTPException(status_code=400, detail="request_data must contain 'url' field")
 
         # Validate method
         valid_methods = ["GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"]
-        method = request_data.get("method", "GET").upper()
+        method = parsed_data.get("method", "GET").upper()
         if method not in valid_methods:
             raise HTTPException(
                 status_code=400,
                 detail=f"Invalid HTTP method. Must be one of: {', '.join(valid_methods)}"
             )
-        request_data["method"] = method
+        parsed_data["method"] = method
 
         # Validate and parse headers if present
-        if "headers" in request_data:
-            if isinstance(request_data["headers"], str):
+        if "headers" in parsed_data:
+            if isinstance(parsed_data["headers"], str):
                 try:
-                    request_data["headers"] = json.loads(request_data["headers"])
+                    parsed_data["headers"] = json.loads(parsed_data["headers"])
                 except json.JSONDecodeError:
                     raise HTTPException(status_code=400, detail="headers must be valid JSON object")
 
-            if not isinstance(request_data["headers"], dict):
+            if not isinstance(parsed_data["headers"], dict):
                 raise HTTPException(status_code=400, detail="headers must be a JSON object")
         else:
-            request_data["headers"] = {}
+            parsed_data["headers"] = {}
 
         # Validate and parse body if present
-        if "body" in request_data and request_data["body"]:
-            if isinstance(request_data["body"], str):
+        if "body" in parsed_data and parsed_data["body"]:
+            if isinstance(parsed_data["body"], str):
                 try:
-                    request_data["body"] = json.loads(request_data["body"])
+                    parsed_data["body"] = json.loads(parsed_data["body"])
                 except json.JSONDecodeError:
                     # If it's not JSON, keep it as string (for form data, etc.)
                     pass
 
         # Re-serialize the validated data
-        request_data.request_data = json.dumps(request_data)
+        request_data.request_data = json.dumps(parsed_data)
 
     except json.JSONDecodeError as e:
         raise HTTPException(

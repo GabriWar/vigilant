@@ -48,15 +48,32 @@ export const cookiesApi = {
     limit?: number;
     include_expired?: boolean;
   }): Promise<Cookie[]> => {
-    const response = await apiClient.get('/cookies', { params });
+    const response = await apiClient.get('/api/cookies', { params });
     return response.data;
+  },
+
+  /**
+   * Get cookies by request ID
+   */
+  getCookies: async (requestId?: number): Promise<Cookie[]> => {
+    const response = await apiClient.get('/api/cookies', { 
+      params: requestId ? { request_id: requestId } : {} 
+    });
+    return response.data;
+  },
+
+  /**
+   * Get all cookies (alias for getAll)
+   */
+  getAllCookies: async (): Promise<Cookie[]> => {
+    return cookiesApi.getAll();
   },
 
   /**
    * Get cookie by ID
    */
   getById: async (id: number): Promise<Cookie> => {
-    const response = await apiClient.get(`/cookies/${id}`);
+    const response = await apiClient.get(`/api/cookies/${id}`);
     return response.data;
   },
 
@@ -64,7 +81,7 @@ export const cookiesApi = {
    * Get cookies expiring soon
    */
   getExpiringSoon: async (hours: number = 24): Promise<CookieWithExpirationInfo[]> => {
-    const response = await apiClient.get('/cookies/expiring-soon', {
+    const response = await apiClient.get('/api/cookies/expiring-soon', {
       params: { hours }
     });
     return response.data;
@@ -74,7 +91,7 @@ export const cookiesApi = {
    * Get expired cookies
    */
   getExpired: async (): Promise<ExpiredCookieInfo[]> => {
-    const response = await apiClient.get('/cookies/expired');
+    const response = await apiClient.get('/api/cookies/expired');
     return response.data;
   },
 
@@ -82,7 +99,7 @@ export const cookiesApi = {
    * Get cookie statistics
    */
   getStatistics: async (): Promise<CookieStatistics> => {
-    const response = await apiClient.get('/cookies/statistics');
+    const response = await apiClient.get('/api/cookies/statistics');
     return response.data;
   },
 
@@ -90,7 +107,7 @@ export const cookiesApi = {
    * Cleanup expired cookies
    */
   cleanup: async (): Promise<CleanupResponse> => {
-    const response = await apiClient.delete('/cookies/cleanup');
+    const response = await apiClient.delete('/api/cookies/cleanup');
     return response.data;
   },
 };

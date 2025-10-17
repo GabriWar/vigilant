@@ -18,5 +18,6 @@ export const ROUTES = {
   LOGS: '/logs',
   LOG_DETAIL: (id: string | number) => `/logs/${id}`,
   IMAGES: '/images',
+  COOKIES: '/cookies',
   SETTINGS: '/settings',
 } as const;

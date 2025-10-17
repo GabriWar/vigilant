@@ -16,7 +16,9 @@ export interface MonitorCardProps {
   onEdit?: (monitor: Monitor) => void;
   onDelete?: (monitor: Monitor) => void;
   onToggleStatus?: (monitor: Monitor) => void;
+  onRefetch?: (monitor: Monitor) => void;
   onClick?: (monitor: Monitor) => void;
+  isRefetching?: boolean;
 }
 
 export const MonitorCard: React.FC<MonitorCardProps> = ({
@@ -24,7 +26,9 @@ export const MonitorCard: React.FC<MonitorCardProps> = ({
   onEdit,
   onDelete,
   onToggleStatus,
+  onRefetch,
   onClick,
+  isRefetching = false,
 }) => {
   const formatDate = (dateString?: string) => {
     if (!dateString) return 'Never';
@@ -61,6 +65,19 @@ export const MonitorCard: React.FC<MonitorCardProps> = ({
         </div>
 
         <div className="monitor-card-actions" onClick={stopPropagation}>
+          {onRefetch && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onRefetch(monitor);
+              }}
+              className="monitor-card-action"
+              title="Test Request"
+              disabled={isRefetching}
+            >
+              <Icon name={isRefetching ? "loader" : "refresh"} size="sm" className={isRefetching ? "animate-spin" : ""} />
+            </button>
+          )}
           {onToggleStatus && (
             <button
               onClick={(e) => {

@@ -15,6 +15,13 @@ export const API_ENDPOINTS = {
   REQUESTS: '/api/requests',
   REQUEST_DETAIL: (id: number) => `/api/requests/${id}`,
   
+  // Workflows
+  WORKFLOWS: '/api/workflows/',
+  WORKFLOW_DETAIL: (id: number) => `/api/workflows/${id}`,
+  WORKFLOW_EXECUTE: (id: number) => `/api/workflows/${id}/execute`,
+  WORKFLOW_EXECUTIONS: (id: number) => `/api/workflows/${id}/executions`,
+  WORKFLOW_VARIABLES: (id: number) => `/api/workflows/${id}/variables`,
+  
   // Logs
   LOGS: '/api/logs',
   LOG_DETAIL: (id: number) => `/api/logs/${id}`,

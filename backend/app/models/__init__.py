@@ -2,6 +2,7 @@
 from app.models.monitor import Monitor
 from app.models.request import Request
 from app.models.cookie import Cookie
+from app.models.header import Header
 from app.models.snapshot import Snapshot
 from app.models.change_log import ChangeLog
 from app.models.image import Image
@@ -14,6 +15,7 @@ __all__ = [
     "Monitor",
     "Request",
     "Cookie",
+    "Header",
     "Snapshot",
     "ChangeLog",
     "Image",

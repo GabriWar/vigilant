@@ -2,6 +2,7 @@
  * Workflows API client
  */
 import { apiClient } from './client';
+import { API_ENDPOINTS } from '@constants/api';
 
 export interface WorkflowStep {
   order: number;
@@ -105,7 +106,7 @@ export const workflowsApi = {
     limit?: number;
     is_active?: boolean;
   }): Promise<Workflow[]> => {
-    const response = await apiClient.get('/workflows', { params });
+    const response = await apiClient.get(API_ENDPOINTS.WORKFLOWS, { params });
     return response.data;
   },
 
@@ -113,7 +114,7 @@ export const workflowsApi = {
    * Get workflow by ID with variables
    */
   getById: async (id: number): Promise<WorkflowWithVariables> => {
-    const response = await apiClient.get(`/workflows/${id}`);
+    const response = await apiClient.get(API_ENDPOINTS.WORKFLOW_DETAIL(id));
     return response.data;
   },
 
@@ -121,7 +122,7 @@ export const workflowsApi = {
    * Create workflow
    */
   create: async (data: WorkflowCreateData): Promise<Workflow> => {
-    const response = await apiClient.post('/workflows', data);
+    const response = await apiClient.post(API_ENDPOINTS.WORKFLOWS, data);
     return response.data;
   },
 
@@ -129,7 +130,7 @@ export const workflowsApi = {
    * Update workflow
    */
   update: async (id: number, data: WorkflowUpdateData): Promise<Workflow> => {
-    const response = await apiClient.put(`/workflows/${id}`, data);
+    const response = await apiClient.put(API_ENDPOINTS.WORKFLOW_DETAIL(id), data);
     return response.data;
   },
 
@@ -137,7 +138,7 @@ export const workflowsApi = {
    * Delete workflow
    */
   delete: async (id: number): Promise<void> => {
-    await apiClient.delete(`/workflows/${id}`);
+    await apiClient.delete(API_ENDPOINTS.WORKFLOW_DETAIL(id));
   },
 
   /**
@@ -149,7 +150,7 @@ export const workflowsApi = {
     background: boolean = false
   ): Promise<WorkflowExecution> => {
     const response = await apiClient.post(
-      `/workflows/${id}/execute`,
+      API_ENDPOINTS.WORKFLOW_EXECUTE(id),
       { workflow_id: id, override_variables: overrideVariables },
       { params: { background } }
     );
@@ -163,7 +164,7 @@ export const workflowsApi = {
     id: number,
     params?: { skip?: number; limit?: number }
   ): Promise<WorkflowExecution[]> => {
-    const response = await apiClient.get(`/workflows/${id}/executions`, { params });
+    const response = await apiClient.get(API_ENDPOINTS.WORKFLOW_EXECUTIONS(id), { params });
     return response.data;
   },
 
@@ -174,7 +175,7 @@ export const workflowsApi = {
     workflowId: number,
     data: VariableCreateData
   ): Promise<Variable> => {
-    const response = await apiClient.post(`/workflows/${workflowId}/variables`, data);
+    const response = await apiClient.post(API_ENDPOINTS.WORKFLOW_VARIABLES(workflowId), data);
     return response.data;
   },
 
@@ -182,7 +183,7 @@ export const workflowsApi = {
    * Get variables
    */
   getVariables: async (workflowId: number): Promise<Variable[]> => {
-    const response = await apiClient.get(`/workflows/${workflowId}/variables`);
+    const response = await apiClient.get(API_ENDPOINTS.WORKFLOW_VARIABLES(workflowId));
     return response.data;
   },
 
@@ -195,7 +196,7 @@ export const workflowsApi = {
     data: Partial<VariableCreateData>
   ): Promise<Variable> => {
     const response = await apiClient.put(
-      `/workflows/${workflowId}/variables/${variableId}`,
+      `${API_ENDPOINTS.WORKFLOW_VARIABLES(workflowId)}/${variableId}`,
       data
     );
     return response.data;
@@ -205,6 +206,6 @@ export const workflowsApi = {
    * Delete variable
    */
   deleteVariable: async (workflowId: number, variableId: number): Promise<void> => {
-    await apiClient.delete(`/workflows/${workflowId}/variables/${variableId}`);
+    await apiClient.delete(`${API_ENDPOINTS.WORKFLOW_VARIABLES(workflowId)}/${variableId}`);
   },
 };

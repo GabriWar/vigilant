@@ -56,6 +56,10 @@ export const Header: React.FC = () => {
             <Icon name="eye" size="sm" />
             Images
           </Link>
+          <Link to={ROUTES.COOKIES} className="header-link">
+            <Icon name="settings" size="sm" />
+            Cookies
+          </Link>
         </div>
 
         <div className="header-actions">

@@ -88,22 +88,51 @@ export const RequestsPage: React.FC = () => {
   };
 
   const handleSubmit = async (data: RequestFormData) => {
-    const requestData = {
-      url: data.url,
-      method: data.method,
-      headers: JSON.parse(data.headers),
-      body: data.body ? JSON.parse(data.body) : undefined,
-    };
-
-    const payload = {
-      name: data.name,
-      request_data: JSON.stringify(requestData),
-      save_cookies: data.save_cookies,
-      watch_interval: data.watch_interval,
-      is_active: data.is_active,
-    };
-
     try {
+      // Parse headers - must be valid JSON
+      let headers = {};
+      if (data.headers && data.headers.trim()) {
+        try {
+          headers = JSON.parse(data.headers);
+        } catch (e) {
+          console.error('Error parsing headers:', e);
+          showAlert({
+            title: 'Error',
+            message: 'Headers must be valid JSON. Example: {"Content-Type": "application/json"}',
+            type: 'error'
+          });
+          return;
+        }
+      }
+
+      // Parse body - try JSON first, if fails keep as string (for form data, plain text, etc.)
+      let body = undefined;
+      if (data.body && data.body.trim()) {
+        try {
+          body = JSON.parse(data.body);
+        } catch (e) {
+          // Not JSON, use as plain string (for form-urlencoded, plain text, etc.)
+          body = data.body;
+        }
+      }
+
+      const requestData = {
+        url: data.url,
+        method: data.method,
+        headers: headers,
+        body: body,
+      };
+
+      const payload = {
+        name: data.name,
+        request_data: JSON.stringify(requestData),
+        save_cookies: data.save_cookies,
+        watch_interval: data.watch_interval,
+        is_active: data.is_active,
+      };
+
+      console.log('Submitting payload:', payload);
+
       if (editingRequest) {
         await updateRequest.mutateAsync({ id: editingRequest.id, data: payload });
       } else {
@@ -111,11 +140,12 @@ export const RequestsPage: React.FC = () => {
       }
       setShowForm(false);
       setEditingRequest(null);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error saving request:', error);
+      const errorMessage = error?.response?.data?.detail || error?.message || 'Failed to save request';
       showAlert({
         title: 'Error',
-        message: 'Failed to save request',
+        message: errorMessage,
         type: 'error'
       });
     }

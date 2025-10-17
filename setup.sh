@@ -7,6 +7,21 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
+# Check for --reset flag
+RESET_MODE=false
+if [ "$1" = "--reset" ]; then
+    RESET_MODE=true
+    echo -e "${YELLOW}╔════════════════════════════════════════════╗${NC}"
+    echo -e "${YELLOW}║        🔄 RESET MODE ENABLED 🔄            ║${NC}"
+    echo -e "${YELLOW}║  All data will be deleted and recreated!  ║${NC}"
+    echo -e "${YELLOW}╔════════════════════════════════════════════╗${NC}"
+    echo ""
+    echo -e "${RED}⚠️  WARNING: This will delete ALL data!${NC}"
+    echo -e "${YELLOW}Press Ctrl+C to cancel, or wait 5 seconds to continue...${NC}"
+    sleep 5
+    echo ""
+fi
+
 echo -e "${BLUE}╔════════════════════════════════════════════╗${NC}"
 echo -e "${BLUE}║   Vigilant 2.0 - Automatic Setup Script   ║${NC}"
 echo -e "${BLUE}╔════════════════════════════════════════════╗${NC}"
@@ -24,6 +39,59 @@ fi
 echo -e "${GREEN}✓ Docker daemon is running${NC}"
 echo ""
 
+# Handle reset mode
+if [ "$RESET_MODE" = true ]; then
+    echo -e "${BLUE}[RESET] Killing all vigilant containers...${NC}"
+    docker ps -a | grep vigilant | awk '{print $1}' | xargs -r docker kill 2>/dev/null || true
+    docker ps -a | grep vigilant | awk '{print $1}' | xargs -r docker rm -f 2>/dev/null || true
+    echo -e "${GREEN}✓ Containers killed${NC}"
+    echo ""
+    
+    echo -e "${BLUE}[RESET] Stopping Docker Compose services...${NC}"
+    docker-compose down -v --remove-orphans 2>/dev/null || true
+    echo -e "${GREEN}✓ Services stopped${NC}"
+    echo ""
+    
+    echo -e "${BLUE}[RESET] Removing ALL volumes with 'vigilant' or 'personal' in name...${NC}"
+    # List all volumes and remove the ones related to this project
+    for volume in $(docker volume ls -q | grep -E "(vigilant|personal)"); do
+        echo -e "${YELLOW}  Removing volume: $volume${NC}"
+        docker volume rm "$volume" -f 2>/dev/null || true
+    done
+    echo -e "${GREEN}✓ All project volumes removed${NC}"
+    echo ""
+    
+    echo -e "${BLUE}[RESET] Cleaning Alembic state...${NC}"
+    rm -rf backend/alembic/versions/__pycache__/* 2>/dev/null || true
+    rm -f backend/alembic/versions/*.pyc 2>/dev/null || true
+    echo -e "${GREEN}✓ Alembic cache cleaned${NC}"
+    echo ""
+    
+    echo -e "${BLUE}[RESET] Cleaning up data directories...${NC}"
+    rm -rf backend/archives/* 2>/dev/null || true
+    rm -rf backend/images/* 2>/dev/null || true
+    rm -rf logs/* 2>/dev/null || true
+    echo -e "${GREEN}✓ Data directories cleaned${NC}"
+    echo ""
+    
+    echo -e "${BLUE}[RESET] Removing configuration files...${NC}"
+    rm -f .env 2>/dev/null || true
+    rm -f backend/vapid_keys.json 2>/dev/null || true
+    echo -e "${GREEN}✓ Configuration files removed${NC}"
+    echo ""
+    
+    echo -e "${BLUE}[RESET] Final cleanup - pruning Docker system...${NC}"
+    docker system prune -af --volumes 2>/dev/null || true
+    echo -e "${GREEN}✓ Docker system completely cleaned${NC}"
+    echo ""
+    
+    echo -e "${GREEN}╔════════════════════════════════════════════╗${NC}"
+    echo -e "${GREEN}║   ✓ RESET COMPLETE - Starting fresh!      ║${NC}"
+    echo -e "${GREEN}╚════════════════════════════════════════════╝${NC}"
+    echo ""
+    sleep 2
+fi
+
 # Check if Python is available (for VAPID key generation)
 echo -e "${BLUE}[1/6] Checking Python installation...${NC}"
 if ! command -v python3 &> /dev/null; then
@@ -31,7 +99,22 @@ if ! command -v python3 &> /dev/null; then
     SKIP_VAPID=true
 else
     echo -e "${GREEN}✓ Python3 found${NC}"
-    SKIP_VAPID=false
+    
+    # Check and install VAPID dependencies
+    if ! python3 -c "import vapid" 2>/dev/null; then
+        echo -e "${YELLOW}⚠ Installing VAPID dependencies...${NC}"
+        pip3 install --user py-vapid cryptography >/dev/null 2>&1 || pip install --user py-vapid cryptography >/dev/null 2>&1
+        
+        if python3 -c "import vapid" 2>/dev/null; then
+            echo -e "${GREEN}✓ VAPID dependencies installed${NC}"
+            SKIP_VAPID=false
+        else
+            echo -e "${YELLOW}⚠ Failed to install VAPID dependencies. Keys will be skipped.${NC}"
+            SKIP_VAPID=true
+        fi
+    else
+        SKIP_VAPID=false
+    fi
 fi
 echo ""
 

@@ -25,6 +25,12 @@
   color: var(--color-text-secondary);
 }
 
+.monitors-header-actions {
+  display: flex;
+  gap: var(--spacing-md);
+  align-items: center;
+}
+
 .monitors-controls {
   display: flex;
   flex-direction: column;

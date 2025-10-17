@@ -56,3 +56,14 @@ export const useDeleteMonitor = () => {
     },
   });
 };
+
+export const useTestRequest = () => {
+  return useMutation({
+    mutationFn: ({ url, method, headers, body }: { 
+      url: string; 
+      method?: string; 
+      headers?: Record<string, string>; 
+      body?: string; 
+    }) => monitorApi.testRequest(url, method, headers, body),
+  });
+};

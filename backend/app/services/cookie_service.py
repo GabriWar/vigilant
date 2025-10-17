@@ -256,8 +256,9 @@ class CookieService:
         )
         session_cookies = session_result.scalar()
 
-        # Valid cookies (not expired, have expiration)
-        valid_cookies = total_cookies - expired_cookies - session_cookies
+        # Valid cookies (not expired - includes both session and cookies with future expiration)
+        # Valid = Total - Expired
+        valid_cookies = total_cookies - expired_cookies
 
         return {
             "total": total_cookies,
